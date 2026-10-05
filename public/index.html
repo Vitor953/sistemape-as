@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consulta de Autopeças</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='5' fill='%2317202A'/><path d='M8 20h16M8 20a3 3 0 106 0 3 3 0 10-6 0M18 20a3 3 0 106 0 3 3 0 10-6 0M7 20l2-7h14l2 7' stroke='%23E8A013' stroke-width='2' fill='none' stroke-linejoin='round'/></svg>">
+</head>
+<body>
+
+<header class="topo">
+  <!-- Só aparece no programa instalado, quando há versão nova. -->
+  <div class="faixa-atualizacao" id="faixaAtualizacao" data-fase="nenhuma" role="status" aria-live="polite" hidden>
+    <span class="faixa-atualizacao__texto" id="faixaAtualizacaoTexto"></span>
+    <span class="faixa-atualizacao__barra"><span id="faixaAtualizacaoProgresso"></span></span>
+    <button class="faixa-atualizacao__botao" id="btInstalarAtualizacao" type="button">Atualizar agora</button>
+  </div>
+
+  <div class="topo__marca">
+    <span class="topo__selo">AP</span>
+    <div>
+      <h1>Consulta de peças</h1>
+      <p id="rodapeContagem">carregando catálogo…</p>
+    </div>
+  </div>
+
+  <nav class="abas" role="tablist">
+    <button class="aba aba--ativa" data-aba="catalogo" role="tab">Catálogo</button>
+    <button class="aba" data-aba="estoque" role="tab">Estoque</button>
+    <button class="aba" data-aba="movimentos" role="tab">Movimentações</button>
+  </nav>
+
+  <div class="topo__acoes">
+    <button class="botao botao--fantasma" id="btImportar">Importar CSV</button>
+    <button class="botao botao--fantasma" id="btExportar">Exportar CSV</button>
+    <button class="botao botao--principal" id="btNova">Cadastrar peça</button>
+  </div>
+</header>
+
+<!-- ======================= CATÁLOGO ======================= -->
+<main class="painel painel--ativo" id="painel-catalogo">
+
+  <section class="busca">
+    <label class="busca__campo">
+      <svg class="busca__lupa" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+      <input id="campoBusca" type="search" autocomplete="off" spellcheck="false"
+             placeholder="Código, nome da peça, marca ou veículo">
+      <button class="busca__limpar" id="btLimparBusca" type="button" hidden aria-label="Limpar busca">&times;</button>
+    </label>
+    <p class="busca__dica">Combine termos livremente: <em>pastilha gol 2012</em>, <em>filtro óleo corolla</em> ou o código completo.</p>
+  </section>
+
+  <section class="filtros">
+    <select id="filtroCategoria" aria-label="Categoria"><option value="">Todas as categorias</option></select>
+    <select id="filtroMarca" aria-label="Marca"><option value="">Todas as marcas</option></select>
+    <select id="filtroMontadora" aria-label="Montadora"><option value="">Todas as montadoras</option></select>
+    <select id="filtroSituacao" aria-label="Situação do estoque">
+      <option value="">Qualquer saldo</option>
+      <option value="disponivel">Em estoque</option>
+      <option value="critico">No mínimo ou abaixo</option>
+      <option value="zerado">Zerado</option>
+    </select>
+    <select id="filtroOrdem" aria-label="Ordenação">
+      <option value="relevancia">Mais relevante</option>
+      <option value="nome">Nome A–Z</option>
+      <option value="codigo">Código</option>
+      <option value="estoque">Menor saldo</option>
+      <option value="preco">Menor preço</option>
+      <option value="preco-desc">Maior preço</option>
+    </select>
+    <button class="botao botao--texto" id="btLimparFiltros" hidden>Limpar filtros</button>
+  </section>
+
+  <p class="resultado-contagem" id="resultadoContagem"></p>
+  <div id="listaPecas" class="lista"></div>
+</main>
+
+<!-- ======================= ESTOQUE ======================= -->
+<main class="painel" id="painel-estoque">
+  <section class="indicadores" id="indicadores"></section>
+  <h2 class="secao-titulo">Precisa de reposição</h2>
+  <div id="listaReposicao" class="lista"></div>
+</main>
+
+<!-- ==================== MOVIMENTAÇÕES ==================== -->
+<main class="painel" id="painel-movimentos">
+  <h2 class="secao-titulo">Últimas entradas e saídas</h2>
+  <div id="listaMovimentos" class="movimentos"></div>
+</main>
+
+<!-- ================== DETALHE DA PEÇA ==================== -->
+<aside class="gaveta" id="gaveta" aria-hidden="true">
+  <div class="gaveta__conteudo" role="dialog" aria-modal="true" aria-labelledby="gavetaNome">
+    <button class="gaveta__fechar" id="btFecharGaveta" aria-label="Fechar">&times;</button>
+    <div id="gavetaCorpo"></div>
+  </div>
+</aside>
+
+<!-- ================= FORMULÁRIO DA PEÇA ================== -->
+<div class="modal" id="modalPeca" aria-hidden="true">
+  <div class="modal__caixa" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+    <header class="modal__topo">
+      <h2 id="tituloModal">Cadastrar peça</h2>
+      <button class="modal__fechar" data-fechar-modal aria-label="Fechar">&times;</button>
+    </header>
+
+    <form id="formPeca" class="formulario">
+      <input type="hidden" id="pecaId">
+
+      <div class="campo campo--terco">
+        <label for="fCodigo">Código</label>
+        <input id="fCodigo" required placeholder="BP-0012">
+      </div>
+      <div class="campo campo--dois-tercos">
+        <label for="fNome">Nome da peça</label>
+        <input id="fNome" required placeholder="Pastilha de freio dianteira">
+      </div>
+
+      <div class="campo campo--metade">
+        <label for="fMarca">Marca</label>
+        <input id="fMarca" list="listaMarcas" placeholder="Bosch">
+        <datalist id="listaMarcas"></datalist>
+      </div>
+      <div class="campo campo--metade">
+        <label for="fCategoria">Categoria</label>
+        <input id="fCategoria" list="listaCategorias" placeholder="Freios">
+        <datalist id="listaCategorias"></datalist>
+      </div>
+
+      <div class="campo campo--quarto">
+        <label for="fPrecoCusto">Preço de custo</label>
+        <input id="fPrecoCusto" inputmode="decimal" placeholder="0,00">
+      </div>
+      <div class="campo campo--quarto">
+        <label for="fPrecoVenda">Preço de venda</label>
+        <input id="fPrecoVenda" inputmode="decimal" placeholder="0,00">
+      </div>
+      <div class="campo campo--quarto">
+        <label for="fEstoque">Saldo em estoque</label>
+        <input id="fEstoque" inputmode="numeric" placeholder="0">
+      </div>
+      <div class="campo campo--quarto">
+        <label for="fEstoqueMinimo">Estoque mínimo</label>
+        <input id="fEstoqueMinimo" inputmode="numeric" placeholder="0">
+      </div>
+
+      <div class="campo campo--metade">
+        <label for="fLocalizacao">Endereço na loja</label>
+        <input id="fLocalizacao" placeholder="A-01">
+      </div>
+      <div class="campo campo--metade">
+        <label for="fFornecedor">Fornecedor</label>
+        <input id="fFornecedor" placeholder="Distribuidora Central">
+      </div>
+
+      <div class="campo campo--inteiro">
+        <label for="fAplicacoes">Aplicações — uma por linha</label>
+        <textarea id="fAplicacoes" rows="4" placeholder="Volkswagen &gt; Gol &gt; 2009-2016 &gt; 1.0&#10;Volkswagen &gt; Voyage &gt; 2009-2016 &gt; 1.6"></textarea>
+        <small>Formato: montadora &gt; modelo &gt; ano inicial-ano final &gt; motor. Só a montadora já basta.</small>
+      </div>
+
+      <div class="campo campo--metade">
+        <label for="fEquivalentes">Códigos equivalentes</label>
+        <input id="fEquivalentes" placeholder="1987948123, N-1234">
+        <small>Separe por vírgula. A busca encontra a peça por qualquer um deles.</small>
+      </div>
+      <div class="campo campo--metade">
+        <label for="fDescricao">Observações</label>
+        <input id="fDescricao" placeholder="Cerâmica, jogo com 4 peças">
+      </div>
+
+      <footer class="formulario__rodape">
+        <button type="button" class="botao botao--perigo botao--texto" id="btExcluir" hidden>Excluir peça</button>
+        <span class="espaco"></span>
+        <button type="button" class="botao botao--fantasma" data-fechar-modal>Cancelar</button>
+        <button type="submit" class="botao botao--principal" id="btSalvar">Salvar peça</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
+<!-- ============== MOVIMENTAÇÃO DE ESTOQUE ================ -->
+<div class="modal" id="modalMovimento" aria-hidden="true">
+  <div class="modal__caixa modal__caixa--estreita" role="dialog" aria-modal="true" aria-labelledby="tituloMovimento">
+    <header class="modal__topo">
+      <h2 id="tituloMovimento">Movimentar estoque</h2>
+      <button class="modal__fechar" data-fechar-modal aria-label="Fechar">&times;</button>
+    </header>
+    <form id="formMovimento" class="formulario">
+      <input type="hidden" id="movimentoPecaId">
+      <p class="movimento__peca" id="movimentoResumo"></p>
+
+      <div class="campo campo--inteiro">
+        <span class="rotulo">Tipo</span>
+        <div class="alternador">
+          <label><input type="radio" name="tipoMovimento" value="entrada" checked><span>Entrada</span></label>
+          <label><input type="radio" name="tipoMovimento" value="saida"><span>Saída</span></label>
+        </div>
+      </div>
+
+      <div class="campo campo--metade">
+        <label for="fQuantidade">Quantidade</label>
+        <input id="fQuantidade" inputmode="numeric" value="1" required>
+      </div>
+      <div class="campo campo--metade">
+        <label for="fMotivo">Motivo</label>
+        <input id="fMotivo" placeholder="Venda balcão, nota 4471…">
+      </div>
+
+      <footer class="formulario__rodape">
+        <span class="espaco"></span>
+        <button type="button" class="botao botao--fantasma" data-fechar-modal>Cancelar</button>
+        <button type="submit" class="botao botao--principal">Confirmar movimento</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
+<input type="file" id="arquivoCSV" accept=".csv,text/csv" hidden>
+<div class="aviso" id="aviso" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

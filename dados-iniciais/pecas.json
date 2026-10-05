@@ -1,0 +1,1453 @@
+[
+  {
+    "id": "ffd36810-dc1f-4b2b-9c10-29c0ef86da1f",
+    "codigo": "BP-0012",
+    "nome": "Pastilha de freio dianteira",
+    "marca": "Bosch",
+    "categoria": "Freios",
+    "descricao": "Cerâmica, jogo com 4 peças",
+    "fornecedor": "",
+    "localizacao": "A-01",
+    "precoCusto": 89.9,
+    "precoVenda": 164.9,
+    "estoque": 24,
+    "estoqueMinimo": 6,
+    "equivalentes": [
+      "1987948123",
+      "N-1234"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Voyage",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.6"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Saveiro",
+        "anoInicio": 2010,
+        "anoFim": 2016,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "00057206-6436-4ddb-8871-f508b61ea844",
+    "codigo": "BP-0031",
+    "nome": "Pastilha de freio dianteira",
+    "marca": "Fras-le",
+    "categoria": "Freios",
+    "descricao": "Jogo com 4 peças",
+    "fornecedor": "",
+    "localizacao": "A-01",
+    "precoCusto": 71.5,
+    "precoVenda": 139.9,
+    "estoque": 3,
+    "estoqueMinimo": 6,
+    "equivalentes": [
+      "PD-231"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Onix",
+        "anoInicio": 2012,
+        "anoFim": 2019,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Prisma",
+        "anoInicio": 2013,
+        "anoFim": 2019,
+        "motor": "1.4"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "16aaa49d-19ef-4a57-8df3-81bcd5234e44",
+    "codigo": "DF-2205",
+    "nome": "Disco de freio ventilado dianteiro",
+    "marca": "Hipper Freios",
+    "categoria": "Freios",
+    "descricao": "Unidade, 256 mm",
+    "fornecedor": "",
+    "localizacao": "A-03",
+    "precoCusto": 128,
+    "precoVenda": 232,
+    "estoque": 8,
+    "estoqueMinimo": 4,
+    "equivalentes": [
+      "HF-256D"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2008,
+        "anoFim": 2016,
+        "motor": "1.6"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Fox",
+        "anoInicio": 2010,
+        "anoFim": 2018,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "95026aff-6bbf-4316-ae53-d9a154837a29",
+    "codigo": "LF-0440",
+    "nome": "Lona de freio traseira",
+    "marca": "Cobreq",
+    "categoria": "Freios",
+    "descricao": "Jogo com 4 peças",
+    "fornecedor": "",
+    "localizacao": "A-05",
+    "precoCusto": 54.9,
+    "precoVenda": 98,
+    "estoque": 15,
+    "estoqueMinimo": 5,
+    "equivalentes": [],
+    "aplicacoes": [
+      {
+        "montadora": "Fiat",
+        "modelo": "Uno",
+        "anoInicio": 2011,
+        "anoFim": 2021,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Mobi",
+        "anoInicio": 2016,
+        "anoFim": 2024,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "9531f0fc-02e9-4ce7-b329-c13d732a928f",
+    "codigo": "FL-9901",
+    "nome": "Filtro de óleo",
+    "marca": "Tecfil",
+    "categoria": "Filtros",
+    "descricao": "Rosqueável",
+    "fornecedor": "",
+    "localizacao": "B-02",
+    "precoCusto": 14.9,
+    "precoVenda": 31.9,
+    "estoque": 62,
+    "estoqueMinimo": 20,
+    "equivalentes": [
+      "PSL-560",
+      "W712"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Onix",
+        "anoInicio": 2012,
+        "anoFim": 2024,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Corsa",
+        "anoInicio": 2002,
+        "anoFim": 2012,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Celta",
+        "anoInicio": 2000,
+        "anoFim": 2015,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "37a61801-623e-4361-af26-8c4b7d7127c0",
+    "codigo": "FL-9912",
+    "nome": "Filtro de óleo",
+    "marca": "Mann-Filter",
+    "categoria": "Filtros",
+    "descricao": "Rosqueável",
+    "fornecedor": "",
+    "localizacao": "B-02",
+    "precoCusto": 26.5,
+    "precoVenda": 52.9,
+    "estoque": 30,
+    "estoqueMinimo": 12,
+    "equivalentes": [
+      "W811/80"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Toyota",
+        "modelo": "Corolla",
+        "anoInicio": 2009,
+        "anoFim": 2019,
+        "motor": "1.8"
+      },
+      {
+        "montadora": "Toyota",
+        "modelo": "Etios",
+        "anoInicio": 2013,
+        "anoFim": 2021,
+        "motor": "1.5"
+      },
+      {
+        "montadora": "Toyota",
+        "modelo": "Yaris",
+        "anoInicio": 2018,
+        "anoFim": 2024,
+        "motor": "1.5"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "04b88b1b-7bc6-4702-9ec1-c021faf20813",
+    "codigo": "FA-3320",
+    "nome": "Filtro de ar do motor",
+    "marca": "Tecfil",
+    "categoria": "Filtros",
+    "descricao": "Elemento retangular",
+    "fornecedor": "",
+    "localizacao": "B-04",
+    "precoCusto": 28,
+    "precoVenda": 58.9,
+    "estoque": 19,
+    "estoqueMinimo": 8,
+    "equivalentes": [
+      "ARL-4210"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Fox",
+        "anoInicio": 2004,
+        "anoFim": 2018,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "f36cc8ed-a595-4bac-9376-cc8ab86e2bb9",
+    "codigo": "FC-1180",
+    "nome": "Filtro de cabine com carvão ativado",
+    "marca": "Wega",
+    "categoria": "Filtros",
+    "descricao": "Antipólen",
+    "fornecedor": "",
+    "localizacao": "B-05",
+    "precoCusto": 32,
+    "precoVenda": 68,
+    "estoque": 11,
+    "estoqueMinimo": 6,
+    "equivalentes": [
+      "AKX-1234"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Hyundai",
+        "modelo": "HB20",
+        "anoInicio": 2013,
+        "anoFim": 2024,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Hyundai",
+        "modelo": "Creta",
+        "anoInicio": 2017,
+        "anoFim": 2024,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "5e260db6-9017-454f-9499-5b939a633551",
+    "codigo": "FC-7702",
+    "nome": "Filtro de combustível",
+    "marca": "Bosch",
+    "categoria": "Filtros",
+    "descricao": "Linha flex",
+    "fornecedor": "",
+    "localizacao": "B-06",
+    "precoCusto": 38.9,
+    "precoVenda": 79.9,
+    "estoque": 0,
+    "estoqueMinimo": 5,
+    "equivalentes": [
+      "0986450121"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Fiat",
+        "modelo": "Palio",
+        "anoInicio": 2008,
+        "anoFim": 2017,
+        "motor": "1.4"
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Siena",
+        "anoInicio": 2008,
+        "anoFim": 2016,
+        "motor": "1.4"
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Strada",
+        "anoInicio": 2009,
+        "anoFim": 2020,
+        "motor": "1.4"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "fa26d5d4-97c2-479f-9e19-7fb50800e721",
+    "codigo": "VI-4410",
+    "nome": "Vela de ignição iridium",
+    "marca": "NGK",
+    "categoria": "Ignição",
+    "descricao": "Unidade",
+    "fornecedor": "",
+    "localizacao": "C-01",
+    "precoCusto": 48,
+    "precoVenda": 92.9,
+    "estoque": 40,
+    "estoqueMinimo": 16,
+    "equivalentes": [
+      "ILZKR7B11",
+      "90919-01253"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Toyota",
+        "modelo": "Corolla",
+        "anoInicio": 2009,
+        "anoFim": 2019,
+        "motor": "1.8"
+      },
+      {
+        "montadora": "Toyota",
+        "modelo": "Etios",
+        "anoInicio": 2013,
+        "anoFim": 2021,
+        "motor": "1.5"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "4600c0c6-f9b0-4c0d-94b9-c12735c607f8",
+    "codigo": "VI-4402",
+    "nome": "Vela de ignição",
+    "marca": "Bosch",
+    "categoria": "Ignição",
+    "descricao": "Unidade, eletrodo de níquel",
+    "fornecedor": "",
+    "localizacao": "C-01",
+    "precoCusto": 16.9,
+    "precoVenda": 34.9,
+    "estoque": 88,
+    "estoqueMinimo": 24,
+    "equivalentes": [
+      "SP-04",
+      "F000KE0P04"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2018,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Celta",
+        "anoInicio": 2003,
+        "anoFim": 2015,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Uno",
+        "anoInicio": 2011,
+        "anoFim": 2020,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "4c159106-dcb5-4805-bbb6-848f52c7cdd3",
+    "codigo": "BI-5520",
+    "nome": "Bobina de ignição",
+    "marca": "Magneti Marelli",
+    "categoria": "Ignição",
+    "descricao": "Bobina de quatro saídas",
+    "fornecedor": "",
+    "localizacao": "C-03",
+    "precoCusto": 148,
+    "precoVenda": 269,
+    "estoque": 6,
+    "estoqueMinimo": 3,
+    "equivalentes": [
+      "BI-0025MM"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Fiat",
+        "modelo": "Palio",
+        "anoInicio": 2008,
+        "anoFim": 2017,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Uno",
+        "anoInicio": 2010,
+        "anoFim": 2019,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "c229d870-36d5-4fd4-8617-c2c35476bfd1",
+    "codigo": "CV-6601",
+    "nome": "Cabo de vela",
+    "marca": "NGK",
+    "categoria": "Ignição",
+    "descricao": "Jogo completo",
+    "fornecedor": "",
+    "localizacao": "C-04",
+    "precoCusto": 96,
+    "precoVenda": 178,
+    "estoque": 9,
+    "estoqueMinimo": 4,
+    "equivalentes": [
+      "SCN-52"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2000,
+        "anoFim": 2014,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Parati",
+        "anoInicio": 2000,
+        "anoFim": 2012,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "97014fc6-fed1-419e-b42f-1f8f7d92061e",
+    "codigo": "AM-1101",
+    "nome": "Amortecedor dianteiro",
+    "marca": "Cofap",
+    "categoria": "Suspensão",
+    "descricao": "Unidade, pressurizado",
+    "fornecedor": "",
+    "localizacao": "D-01",
+    "precoCusto": 210,
+    "precoVenda": 389,
+    "estoque": 7,
+    "estoqueMinimo": 4,
+    "equivalentes": [
+      "GP-30123"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Onix",
+        "anoInicio": 2012,
+        "anoFim": 2019,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Prisma",
+        "anoInicio": 2013,
+        "anoFim": 2019,
+        "motor": "1.4"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "7137032d-568a-43a4-a5ba-88a54e7d4d3e",
+    "codigo": "AM-1108",
+    "nome": "Amortecedor traseiro",
+    "marca": "Monroe",
+    "categoria": "Suspensão",
+    "descricao": "Unidade",
+    "fornecedor": "",
+    "localizacao": "D-01",
+    "precoCusto": 168,
+    "precoVenda": 312,
+    "estoque": 2,
+    "estoqueMinimo": 4,
+    "equivalentes": [
+      "MO-23451"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Voyage",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "2c4f8f53-8348-4e3f-b400-178060f661de",
+    "codigo": "BS-2210",
+    "nome": "Bandeja de suspensão dianteira esquerda",
+    "marca": "Nakata",
+    "categoria": "Suspensão",
+    "descricao": "Com pivô montado",
+    "fornecedor": "",
+    "localizacao": "D-03",
+    "precoCusto": 176,
+    "precoVenda": 318,
+    "estoque": 4,
+    "estoqueMinimo": 2,
+    "equivalentes": [
+      "NBA-2210"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Ford",
+        "modelo": "Ka",
+        "anoInicio": 2015,
+        "anoFim": 2021,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Ford",
+        "modelo": "Fiesta",
+        "anoInicio": 2014,
+        "anoFim": 2019,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "dbfc2d0a-8914-445c-ab63-53296e65145b",
+    "codigo": "PV-2255",
+    "nome": "Pivô de suspensão",
+    "marca": "Nakata",
+    "categoria": "Suspensão",
+    "descricao": "Unidade",
+    "fornecedor": "",
+    "localizacao": "D-04",
+    "precoCusto": 62,
+    "precoVenda": 118,
+    "estoque": 16,
+    "estoqueMinimo": 6,
+    "equivalentes": [
+      "N-99123"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Fiat",
+        "modelo": "Strada",
+        "anoInicio": 2010,
+        "anoFim": 2020,
+        "motor": "1.4"
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Palio",
+        "anoInicio": 2008,
+        "anoFim": 2017,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "d9675942-9e6f-4556-8864-20e3d454f846",
+    "codigo": "TD-3310",
+    "nome": "Terminal de direção",
+    "marca": "Viemar",
+    "categoria": "Direção",
+    "descricao": "Lado direito",
+    "fornecedor": "",
+    "localizacao": "D-06",
+    "precoCusto": 54,
+    "precoVenda": 104.9,
+    "estoque": 21,
+    "estoqueMinimo": 8,
+    "equivalentes": [
+      "VM-3310"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Fox",
+        "anoInicio": 2004,
+        "anoFim": 2018,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "86454736-a462-4717-ba94-54c7ec80474c",
+    "codigo": "CP-7010",
+    "nome": "Correia dentada",
+    "marca": "Gates",
+    "categoria": "Motor",
+    "descricao": "123 dentes",
+    "fornecedor": "",
+    "localizacao": "E-01",
+    "precoCusto": 78,
+    "precoVenda": 142,
+    "estoque": 13,
+    "estoqueMinimo": 5,
+    "equivalentes": [
+      "5350XS"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Fiat",
+        "modelo": "Palio",
+        "anoInicio": 2005,
+        "anoFim": 2016,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Uno",
+        "anoInicio": 2010,
+        "anoFim": 2019,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "fc59312f-8513-42b3-9b84-bfcbdc7185a0",
+    "codigo": "CP-7022",
+    "nome": "Kit correia dentada com tensor",
+    "marca": "Contitech",
+    "categoria": "Motor",
+    "descricao": "Correia mais tensor",
+    "fornecedor": "",
+    "localizacao": "E-01",
+    "precoCusto": 268,
+    "precoVenda": 458,
+    "estoque": 3,
+    "estoqueMinimo": 2,
+    "equivalentes": [
+      "CT1028K2"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.6"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Voyage",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "1c5b2444-88db-4010-bafe-0e4926ab2bc7",
+    "codigo": "BD-8801",
+    "nome": "Bomba dágua",
+    "marca": "Urba",
+    "categoria": "Arrefecimento",
+    "descricao": "Com junta",
+    "fornecedor": "",
+    "localizacao": "E-04",
+    "precoCusto": 132,
+    "precoVenda": 248,
+    "estoque": 5,
+    "estoqueMinimo": 3,
+    "equivalentes": [
+      "UB-8801"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Corsa",
+        "anoInicio": 2002,
+        "anoFim": 2012,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Celta",
+        "anoInicio": 2003,
+        "anoFim": 2015,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "9bf88bd2-84da-4a21-ad0b-3d78e2be4dbd",
+    "codigo": "VT-8820",
+    "nome": "Válvula termostática",
+    "marca": "Wahler",
+    "categoria": "Arrefecimento",
+    "descricao": "87 graus",
+    "fornecedor": "",
+    "localizacao": "E-05",
+    "precoCusto": 62,
+    "precoVenda": 118,
+    "estoque": 10,
+    "estoqueMinimo": 4,
+    "equivalentes": [
+      "WH-4214"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2018,
+        "motor": "1.6"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Saveiro",
+        "anoInicio": 2010,
+        "anoFim": 2020,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "1de13db9-c240-4f2d-aa18-69359190f728",
+    "codigo": "RD-8840",
+    "nome": "Radiador",
+    "marca": "Valeo",
+    "categoria": "Arrefecimento",
+    "descricao": "Sem ar-condicionado",
+    "fornecedor": "",
+    "localizacao": "E-08",
+    "precoCusto": 412,
+    "precoVenda": 728,
+    "estoque": 2,
+    "estoqueMinimo": 1,
+    "equivalentes": [
+      "VL-732145"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Fiat",
+        "modelo": "Uno",
+        "anoInicio": 2011,
+        "anoFim": 2021,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Mobi",
+        "anoInicio": 2016,
+        "anoFim": 2023,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "4b814f39-c564-49e5-908a-502682e0bc2c",
+    "codigo": "EM-9010",
+    "nome": "Bateria 60 Ah",
+    "marca": "Moura",
+    "categoria": "Elétrica",
+    "descricao": "18 meses de garantia",
+    "fornecedor": "",
+    "localizacao": "F-01",
+    "precoCusto": 398,
+    "precoVenda": 649,
+    "estoque": 12,
+    "estoqueMinimo": 4,
+    "equivalentes": [
+      "M60GD"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2000,
+        "anoFim": 2024,
+        "motor": ""
+      },
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Onix",
+        "anoInicio": 2012,
+        "anoFim": 2024,
+        "motor": ""
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Uno",
+        "anoInicio": 2010,
+        "anoFim": 2024,
+        "motor": ""
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "17e9933b-9359-447d-af4b-628f9ed5c94f",
+    "codigo": "EM-9021",
+    "nome": "Alternador 90 A",
+    "marca": "Bosch",
+    "categoria": "Elétrica",
+    "descricao": "Remanufaturado",
+    "fornecedor": "",
+    "localizacao": "F-03",
+    "precoCusto": 620,
+    "precoVenda": 1090,
+    "estoque": 1,
+    "estoqueMinimo": 2,
+    "equivalentes": [
+      "0986049151"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.6"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Fox",
+        "anoInicio": 2010,
+        "anoFim": 2018,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "abc22a35-889a-4915-9e3a-5d56a04a7334",
+    "codigo": "EM-9033",
+    "nome": "Motor de partida",
+    "marca": "Valeo",
+    "categoria": "Elétrica",
+    "descricao": "Unidade",
+    "fornecedor": "",
+    "localizacao": "F-04",
+    "precoCusto": 540,
+    "precoVenda": 958,
+    "estoque": 2,
+    "estoqueMinimo": 1,
+    "equivalentes": [
+      "VL-458231"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Onix",
+        "anoInicio": 2012,
+        "anoFim": 2019,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Prisma",
+        "anoInicio": 2013,
+        "anoFim": 2019,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "6e04ffa1-823c-4a6c-8c33-93840294730c",
+    "codigo": "SN-9501",
+    "nome": "Sensor de oxigênio (sonda lambda)",
+    "marca": "NGK",
+    "categoria": "Injeção",
+    "descricao": "Quatro fios, pré-catalisador",
+    "fornecedor": "",
+    "localizacao": "F-06",
+    "precoCusto": 188,
+    "precoVenda": 342,
+    "estoque": 4,
+    "estoqueMinimo": 2,
+    "equivalentes": [
+      "OZA-659"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Hyundai",
+        "modelo": "HB20",
+        "anoInicio": 2013,
+        "anoFim": 2022,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Hyundai",
+        "modelo": "HB20S",
+        "anoInicio": 2013,
+        "anoFim": 2022,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "d6f228ff-9495-42a6-973f-8c53c641a8e9",
+    "codigo": "SN-9512",
+    "nome": "Sensor de rotação",
+    "marca": "Magneti Marelli",
+    "categoria": "Injeção",
+    "descricao": "Indutivo",
+    "fornecedor": "",
+    "localizacao": "F-06",
+    "precoCusto": 92,
+    "precoVenda": 172,
+    "estoque": 8,
+    "estoqueMinimo": 3,
+    "equivalentes": [
+      "MM-2201"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Fiat",
+        "modelo": "Palio",
+        "anoInicio": 2008,
+        "anoFim": 2017,
+        "motor": "1.4"
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Siena",
+        "anoInicio": 2008,
+        "anoFim": 2016,
+        "motor": "1.4"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "671ee02e-fd0d-42aa-b679-0160697e77c4",
+    "codigo": "EB-4101",
+    "nome": "Embreagem completa",
+    "marca": "Luk",
+    "categoria": "Transmissão",
+    "descricao": "Platô, disco e rolamento",
+    "fornecedor": "",
+    "localizacao": "G-01",
+    "precoCusto": 486,
+    "precoVenda": 852,
+    "estoque": 3,
+    "estoqueMinimo": 2,
+    "equivalentes": [
+      "619301809"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.6"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Voyage",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "2389bec6-58ed-45cc-9cd9-eba29ebfc42f",
+    "codigo": "EB-4118",
+    "nome": "Kit embreagem",
+    "marca": "Sachs",
+    "categoria": "Transmissão",
+    "descricao": "Platô, disco e rolamento",
+    "fornecedor": "",
+    "localizacao": "G-01",
+    "precoCusto": 512,
+    "precoVenda": 898,
+    "estoque": 0,
+    "estoqueMinimo": 2,
+    "equivalentes": [
+      "3000951065"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Toyota",
+        "modelo": "Corolla",
+        "anoInicio": 2009,
+        "anoFim": 2019,
+        "motor": "1.8"
+      },
+      {
+        "montadora": "Toyota",
+        "modelo": "Etios",
+        "anoInicio": 2013,
+        "anoFim": 2021,
+        "motor": "1.5"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "709c0fe8-a901-4d46-ae57-8b81ef052701",
+    "codigo": "HD-5501",
+    "nome": "Homocinética lado roda",
+    "marca": "Spicer",
+    "categoria": "Transmissão",
+    "descricao": "Com kit de montagem",
+    "fornecedor": "",
+    "localizacao": "G-03",
+    "precoCusto": 218,
+    "precoVenda": 398,
+    "estoque": 6,
+    "estoqueMinimo": 3,
+    "equivalentes": [
+      "SP-5501"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Onix",
+        "anoInicio": 2012,
+        "anoFim": 2019,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Prisma",
+        "anoInicio": 2013,
+        "anoFim": 2019,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "5ccd8b5f-d22d-4061-a6ab-705601c4f326",
+    "codigo": "RM-6601",
+    "nome": "Rolamento de roda dianteira",
+    "marca": "SKF",
+    "categoria": "Rodas",
+    "descricao": "Com anel magnético",
+    "fornecedor": "",
+    "localizacao": "G-05",
+    "precoCusto": 128,
+    "precoVenda": 236,
+    "estoque": 14,
+    "estoqueMinimo": 6,
+    "equivalentes": [
+      "VKBA-3644"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Renault",
+        "modelo": "Sandero",
+        "anoInicio": 2008,
+        "anoFim": 2023,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Renault",
+        "modelo": "Logan",
+        "anoInicio": 2008,
+        "anoFim": 2023,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "f933ba2c-6e8c-4ef6-a189-11944dda4f06",
+    "codigo": "CE-7701",
+    "nome": "Coxim do motor",
+    "marca": "Axios",
+    "categoria": "Motor",
+    "descricao": "Lado direito",
+    "fornecedor": "",
+    "localizacao": "E-09",
+    "precoCusto": 96,
+    "precoVenda": 178,
+    "estoque": 7,
+    "estoqueMinimo": 3,
+    "equivalentes": [
+      "AX-7701"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Ford",
+        "modelo": "Ka",
+        "anoInicio": 2015,
+        "anoFim": 2021,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Ford",
+        "modelo": "Fiesta",
+        "anoInicio": 2014,
+        "anoFim": 2019,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "1580b71f-0e55-49e3-bc31-c514053549b4",
+    "codigo": "JT-7712",
+    "nome": "Junta do cabeçote",
+    "marca": "Taranto",
+    "categoria": "Motor",
+    "descricao": "Aço multilaminado",
+    "fornecedor": "",
+    "localizacao": "E-10",
+    "precoCusto": 88,
+    "precoVenda": 162,
+    "estoque": 5,
+    "estoqueMinimo": 2,
+    "equivalentes": [
+      "TR-7712"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2018,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Fox",
+        "anoInicio": 2004,
+        "anoFim": 2018,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "d857eaa2-6245-4293-be4a-10e704bded4a",
+    "codigo": "LM-8801",
+    "nome": "Lâmpada H4 12 V 60/55 W",
+    "marca": "Philips",
+    "categoria": "Iluminação",
+    "descricao": "Unidade",
+    "fornecedor": "",
+    "localizacao": "H-01",
+    "precoCusto": 22,
+    "precoVenda": 46.9,
+    "estoque": 54,
+    "estoqueMinimo": 20,
+    "equivalentes": [
+      "12342PRC1"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2000,
+        "anoFim": 2016,
+        "motor": ""
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Uno",
+        "anoInicio": 2005,
+        "anoFim": 2020,
+        "motor": ""
+      },
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Celta",
+        "anoInicio": 2000,
+        "anoFim": 2015,
+        "motor": ""
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "dd332d13-b7fe-4184-8b78-3a6e41a04611",
+    "codigo": "FR-8810",
+    "nome": "Farol dianteiro esquerdo",
+    "marca": "Arteb",
+    "categoria": "Iluminação",
+    "descricao": "Máscara negra",
+    "fornecedor": "",
+    "localizacao": "H-04",
+    "precoCusto": 268,
+    "precoVenda": 478,
+    "estoque": 2,
+    "estoqueMinimo": 1,
+    "equivalentes": [
+      "AR-8810E"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Onix",
+        "anoInicio": 2012,
+        "anoFim": 2016,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Chevrolet",
+        "modelo": "Prisma",
+        "anoInicio": 2013,
+        "anoFim": 2016,
+        "motor": "1.4"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "14b11750-cdd7-4278-870b-5d9629f8d996",
+    "codigo": "PB-9902",
+    "nome": "Palheta limpador 16 polegadas",
+    "marca": "Dyna",
+    "categoria": "Acessórios",
+    "descricao": "Par",
+    "fornecedor": "",
+    "localizacao": "H-06",
+    "precoCusto": 18.5,
+    "precoVenda": 39.9,
+    "estoque": 36,
+    "estoqueMinimo": 12,
+    "equivalentes": [
+      "DY-16"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2020,
+        "motor": ""
+      },
+      {
+        "montadora": "Fiat",
+        "modelo": "Palio",
+        "anoInicio": 2008,
+        "anoFim": 2017,
+        "motor": ""
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "98e3e5db-915d-4e63-bf87-1ea0a8462ffe",
+    "codigo": "AC-3301",
+    "nome": "Compressor do ar-condicionado",
+    "marca": "Denso",
+    "categoria": "Ar-condicionado",
+    "descricao": "Remanufaturado",
+    "fornecedor": "",
+    "localizacao": "I-01",
+    "precoCusto": 1180,
+    "precoVenda": 1980,
+    "estoque": 1,
+    "estoqueMinimo": 1,
+    "equivalentes": [
+      "DN-3301"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Toyota",
+        "modelo": "Corolla",
+        "anoInicio": 2009,
+        "anoFim": 2019,
+        "motor": "1.8"
+      },
+      {
+        "montadora": "Toyota",
+        "modelo": "Hilux",
+        "anoInicio": 2012,
+        "anoFim": 2020,
+        "motor": "2.8"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "40d55055-06e7-41ec-ae72-eb71de6fbffa",
+    "codigo": "AC-3312",
+    "nome": "Filtro secador",
+    "marca": "Mahle",
+    "categoria": "Ar-condicionado",
+    "descricao": "Unidade",
+    "fornecedor": "",
+    "localizacao": "I-02",
+    "precoCusto": 92,
+    "precoVenda": 168,
+    "estoque": 5,
+    "estoqueMinimo": 3,
+    "equivalentes": [
+      "MH-3312"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Hyundai",
+        "modelo": "HB20",
+        "anoInicio": 2013,
+        "anoFim": 2024,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Hyundai",
+        "modelo": "Creta",
+        "anoInicio": 2017,
+        "anoFim": 2024,
+        "motor": "1.6"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  },
+  {
+    "id": "cf77be20-88de-46cb-8b6d-3ad3c2a4ac31",
+    "codigo": "ES-1102",
+    "nome": "Escapamento traseiro",
+    "marca": "Tuper",
+    "categoria": "Escapamento",
+    "descricao": "Silencioso traseiro",
+    "fornecedor": "",
+    "localizacao": "J-01",
+    "precoCusto": 218,
+    "precoVenda": 386,
+    "estoque": 3,
+    "estoqueMinimo": 1,
+    "equivalentes": [
+      "TP-1102"
+    ],
+    "aplicacoes": [
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Gol",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.0"
+      },
+      {
+        "montadora": "Volkswagen",
+        "modelo": "Voyage",
+        "anoInicio": 2009,
+        "anoFim": 2016,
+        "motor": "1.0"
+      }
+    ],
+    "criadoEm": "2026-09-17T22:05:11.643Z",
+    "atualizadoEm": "2026-09-17T22:05:11.643Z"
+  }
+]

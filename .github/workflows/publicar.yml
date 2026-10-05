@@ -1,0 +1,36 @@
+# Monta o instalador do Windows na nuvem e publica como Release no GitHub.
+#
+# Dispara de duas formas:
+#   - automaticamente, quando você envia uma tag de versão (ex.: v1.0.1)
+#   - manualmente, na aba Actions do repositório
+
+name: Publicar instalador
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Preparar o Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Montar e publicar o instalador
+        run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

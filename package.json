@@ -1,0 +1,55 @@
+{
+  "name": "consulta-autopecas",
+  "productName": "Consulta de Autopecas",
+  "version": "1.0.1",
+  "description": "Sistema de consulta e controle de estoque de autopecas",
+  "author": "Sua Loja",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "motor": "node servidor.js",
+    "instalador": "electron-builder --win --publish never",
+    "publicar": "electron-builder --win --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "br.autopecas.consulta",
+    "productName": "Consulta de Autopecas",
+    "copyright": "Sua Loja",
+    "files": [
+      "main.js",
+      "preload.js",
+      "servidor.js",
+      "public/**/*",
+      "dados-iniciais/**/*",
+      "build/icone.ico"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icone.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Consulta de Autopecas",
+      "installerLanguages": ["pt_BR"],
+      "language": "1046"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "interclubesautomacao-bit",
+      "repo": "consulta-autopecas"
+    }
+  }
+}
