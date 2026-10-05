@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar · Consulta de Autopeças</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='5' fill='%2317202A'/><path d='M8 20h16M8 20a3 3 0 106 0 3 3 0 10-6 0M18 20a3 3 0 106 0 3 3 0 10-6 0M7 20l2-7h14l2 7' stroke='%23E8A013' stroke-width='2' fill='none' stroke-linejoin='round'/></svg>">
+</head>
+<body class="tela-login">
+
+<main class="login">
+  <header class="login__topo">
+    <span class="topo__selo">AP</span>
+    <div>
+      <h1>Consulta de peças</h1>
+      <p>Entre com seu usuário para acessar o sistema.</p>
+    </div>
+  </header>
+
+  <form id="formLogin" class="login__formulario" novalidate>
+    <div class="campo">
+      <label for="lEmail">E-mail</label>
+      <input id="lEmail" type="email" autocomplete="username" spellcheck="false" required>
+    </div>
+    <div class="campo">
+      <label for="lSenha">Senha</label>
+      <input id="lSenha" type="password" autocomplete="current-password" required>
+    </div>
+
+    <p class="login__erro" id="loginErro" role="alert" hidden></p>
+
+    <button class="botao botao--principal login__botao" type="submit" id="btEntrar">Entrar</button>
+  </form>
+
+  <p class="login__rodape">Sem acesso? Peça ao responsável pelo sistema para liberar seu usuário.</p>
+</main>
+
+<script src="login.js"></script>
+</body>
+</html>

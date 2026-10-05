@@ -122,33 +122,55 @@ clicar, a atualização é instalada da próxima vez que o programa for fechado.
 
 ## Onde ficam os dados
 
-O catálogo **não fica** na pasta do projeto. Fica numa pasta do usuário do Windows:
+O catálogo e o histórico ficam no **Supabase**, o banco de dados online. Todos os
+computadores da loja enxergam o mesmo estoque, e cada entrada ou saída registra
+quem fez. O programa precisa de internet para funcionar.
+
+O endereço do banco e a chave pública ficam em `config.js`. A chave `anon` pode
+ficar no código: sozinha ela não abre nada, porque o banco só libera os dados para
+quem entrou com um usuário cadastrado na tabela `usuarios`. **A chave
+`service_role` nunca vai para o código**: ela dá acesso total e o instalador é
+público.
+
+### Montar o banco (uma vez só)
+
+No painel do Supabase, abra **SQL Editor**, cole o conteúdo de
+`supabase/esquema.sql` e clique em **Run**. Pode rodar de novo sem medo: o
+script só cria o que falta.
+
+### Liberar uma pessoa para entrar
+
+No terminal do VS Code, com a chave `service_role` (no Coolify ela se chama
+`SERVICE_SUPABASESERVICE_KEY`):
 
 ```
-C:\Users\SEU-NOME\AppData\Roaming\Consulta de Autopecas\dados
+$env:SUPABASE_SERVICE_KEY = "cole a chave aqui"
+npm run criar-usuario -- vendedor@loja.com.br SenhaForte123 "Nome da pessoa"
 ```
 
-Isso é de propósito. Significa que atualizar o programa nunca apaga o estoque de
-ninguém. Para chegar lá rápido, use o menu **Arquivo › Abrir pasta do catálogo**
-dentro do programa.
+Rodar de novo com o mesmo e-mail troca a senha. Para tirar o acesso de alguém,
+apague a linha da pessoa na tabela `usuarios` pelo **Table Editor** do Supabase.
 
-Para backup, copie essa pasta. São dois arquivos de texto: `pecas.json` (o catálogo)
-e `movimentacoes.json` (o histórico).
+### Backup
 
-Na primeira vez que o programa roda, ele copia para lá as 40 peças de demonstração.
-Para pôr o seu estoque: exporte o CSV, use como modelo no Excel e importe de volta.
+Use **Exportar CSV** dentro do programa, ou os backups do próprio Supabase no
+Coolify.
 
 ## Onde fica cada coisa no projeto
 
 | Arquivo | O que faz |
 |---|---|
 | `main.js` | Cria a janela, cuida do menu e das atualizações |
-| `servidor.js` | O motor: busca, cadastro, movimentação, CSV |
+| `servidor.js` | O motor: login, busca, cadastro, movimentação, CSV, conversa com o banco |
+| `config.js` | Endereço do Supabase e chave pública |
 | `preload.js` | Ponte entre a tela e o programa |
+| `public/login.html` · `login.js` | Página de entrada |
 | `public/index.html` | Estrutura da tela e campos dos formulários |
 | `public/estilo.css` | Cores, fontes e layout (tudo no bloco `:root` do topo) |
 | `public/app.js` | Comportamento da tela: busca, filtros, modais |
-| `dados-iniciais/pecas.json` | As 40 peças de demonstração |
+| `supabase/esquema.sql` | Tabelas, regras de acesso e a função de entrada e saída |
+| `scripts/criar-usuario.js` | Cria e libera usuários (`npm run criar-usuario`) |
+| `dados-iniciais/pecas.json` | 40 peças de demonstração (não vão no instalador) |
 | `build/icone.ico` | Ícone do programa e do instalador |
 | `.github/workflows/publicar.yml` | Receita que o GitHub usa para montar o instalador |
 
@@ -173,7 +195,9 @@ A tarja colorida na lateral de cada ficha indica o saldo — verde acima do mín
 
 Só `codigo` e `nome` são obrigatórios. Separador de colunas: ponto e vírgula.
 Preços aceitam vírgula decimal. Na importação, códigos que já existem são
-atualizados e os novos são criados; nada é apagado.
+atualizados e os novos são criados; nada é apagado. Numa peça que já existe, só
+mudam as colunas que a planilha traz preenchidas: coluna ausente ou célula vazia
+mantém o valor atual.
 
 - **equivalentes** — separados por barra vertical: `1987948123 | N-1234`
 - **aplicacoes** — cada uma no formato `montadora > modelo > ano-ano > motor`,
@@ -197,4 +221,8 @@ usuário. A atualização só funciona no programa instalado, nunca no `npm star
 `npm run instalador`. O arquivo sai na pasta `dist`. Só funciona rodando no Windows.
 
 **Quero olhar só o motor, sem janela** — `npm run motor` sobe o sistema em
-`http://localhost:3000` usando uma pasta de teste separada. Serve para depurar a API.
+`http://localhost:3000`, com a mesma página de login e o mesmo banco do programa.
+Serve para depurar a API. Atenção: o que você mexer ali muda o estoque de verdade.
+
+**"O servidor do banco de dados não respondeu"** — o Supabase está fora do ar ou
+sem internet. Confira no Coolify se o serviço está como *Running*.

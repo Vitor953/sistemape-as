@@ -40,6 +40,11 @@ async function api(caminho, opcoes = {}) {
     body: opcoes.corpo ? JSON.stringify(opcoes.corpo) : undefined
   });
   const dado = await resposta.json().catch(() => ({}));
+  // Sessão acabou (programa reaberto, senha trocada…): volta para a entrada.
+  if (resposta.status === 401) {
+    window.location.replace('/login.html');
+    throw new Error(dado.erro || 'Entre com seu usuário para continuar.');
+  }
   if (!resposta.ok) throw new Error(dado.erro || 'Não foi possível concluir a operação.');
   return dado;
 }
@@ -205,6 +210,7 @@ async function carregarMovimentos() {
                     <span class="movimento__detalhe">
                       <b>${escapar(m.codigo)}</b> ${escapar(m.nome)}
                       ${m.motivo ? `<span>— ${escapar(m.motivo)}</span>` : ''}
+                      ${m.usuario ? `<span>· ${escapar(m.usuario)}</span>` : ''}
                     </span>
                     <span class="movimento__saldo">saldo ${m.saldoApos}</span>
                   </div>`
@@ -340,6 +346,7 @@ function lerAplicacoes(texto) {
 function abrirFormulario(peca) {
   $('#tituloModal').textContent = peca ? 'Editar peça' : 'Cadastrar peça';
   $('#pecaId').value = peca?.id || '';
+  $('#pecaVersao').value = peca?.atualizadoEm || '';
   $('#fCodigo').value = peca?.codigo || '';
   $('#fNome').value = peca?.nome || '';
   $('#fMarca').value = peca?.marca || '';
@@ -373,7 +380,8 @@ $('#formPeca').addEventListener('submit', async evento => {
     estoque: $('#fEstoque').value,
     estoqueMinimo: $('#fEstoqueMinimo').value,
     equivalentes: $('#fEquivalentes').value.split(',').map(s => s.trim()).filter(Boolean),
-    aplicacoes: lerAplicacoes($('#fAplicacoes').value)
+    aplicacoes: lerAplicacoes($('#fAplicacoes').value),
+    versao: $('#pecaVersao').value
   };
 
   try {
@@ -548,8 +556,27 @@ document.addEventListener('keydown', evento => {
   }
 });
 
+/* ---------------------------- Usuário ---------------------------- */
+
+async function carregarUsuario() {
+  try {
+    const { usuario } = await api('/api/sessao');
+    $('#usuarioNome').textContent = usuario.nome || usuario.email;
+    $('#usuarioNome').title = usuario.email;
+    $('#topoUsuario').hidden = false;
+  } catch (erro) {
+    // Sem sessão, a função api() já levou para a página de entrada.
+  }
+}
+
+$('#btSair').addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST' }).catch(() => {});
+  window.location.replace('/login.html');
+});
+
 /* ---------------------------- Início ----------------------------- */
 
+carregarUsuario();
 carregarResumo().then(carregarPecas);
 $('#campoBusca').focus();
 

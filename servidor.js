@@ -3,53 +3,198 @@
  *
  * Este arquivo não abre janela nenhuma. Ele só responde às requisições
  * da tela. Quem cria a janela é o main.js.
+ *
+ * Os dados ficam no Supabase. Cada pessoa entra com o próprio usuário e o
+ * motor conversa com o banco em nome dela, então as regras de acesso do
+ * banco valem para tudo o que passa por aqui.
  */
 
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { SUPABASE_URL, SUPABASE_ANON_KEY } = require('./config');
 
 let PASTA_PUBLICA;
-let PASTA_DADOS;
-let ARQ_PECAS;
-let ARQ_MOVIMENTOS;
 
 /* ------------------------------------------------------------------ */
-/* Armazenamento em arquivo JSON                                       */
+/* Conversa com o Supabase                                             */
 /* ------------------------------------------------------------------ */
 
-function lerJSON(arquivo, padrao) {
+class ErroDoBanco extends Error {
+  constructor(mensagem, status) {
+    super(mensagem);
+    this.status = status;
+  }
+}
+
+async function chamarSupabase(caminho, { metodo = 'GET', token, corpo, cabecalhos = {} } = {}) {
+  let resposta;
   try {
-    const bruto = fs.readFileSync(arquivo, 'utf8');
-    const dado = JSON.parse(bruto);
-    return Array.isArray(dado) ? dado : padrao;
+    resposta = await fetch(SUPABASE_URL + caminho, {
+      method: metodo,
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${token || SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        ...cabecalhos
+      },
+      body: corpo === undefined ? undefined : JSON.stringify(corpo),
+      signal: AbortSignal.timeout(20000)
+    });
   } catch (e) {
-    return padrao;
+    throw new ErroDoBanco('Sem conexão com o banco de dados. Confira a internet e tente de novo.', 503);
+  }
+
+  const texto = await resposta.text();
+  let dado = null;
+  try {
+    dado = texto ? JSON.parse(texto) : null;
+  } catch (e) {
+    dado = null;
+  }
+
+  if (!resposta.ok) {
+    // Sem JSON, quem respondeu não foi o Supabase (servidor fora do ar, proxy…).
+    if (!dado) {
+      throw new ErroDoBanco(
+        `O servidor do banco de dados não respondeu como deveria (código ${resposta.status}). Tente de novo em instantes.`,
+        503
+      );
+    }
+    const mensagem =
+      dado.message || dado.msg || dado.error_description || dado.error ||
+      `O banco de dados recusou a operação (código ${resposta.status}).`;
+    throw new ErroDoBanco(mensagem, resposta.status);
+  }
+  return dado;
+}
+
+/* ------------------------------------------------------------------ */
+/* Sessões                                                             */
+/* ------------------------------------------------------------------ */
+// A tela recebe só um cookie com um número aleatório. Os tokens do
+// Supabase ficam aqui no motor e nunca chegam à tela.
+
+const sessoes = new Map();
+
+function lerCookie(req) {
+  const achado = (req.headers.cookie || '').match(/(?:^|;\s*)sessao=([a-f0-9]{64})/);
+  return achado ? achado[1] : null;
+}
+
+function sessaoDaRequisicao(req) {
+  return sessoes.get(lerCookie(req)) || null;
+}
+
+function guardarTokens(sessao, dado) {
+  sessao.accessToken = dado.access_token;
+  sessao.refreshToken = dado.refresh_token;
+  sessao.expiraEm = Date.now() + (dado.expires_in || 3600) * 1000;
+}
+
+async function tokenDaSessao(sessao) {
+  if (Date.now() < sessao.expiraEm - 60 * 1000) return sessao.accessToken;
+
+  // Várias requisições podem pedir a renovação ao mesmo tempo; só uma vai ao banco.
+  if (!sessao.renovando) {
+    sessao.renovando = chamarSupabase('/auth/v1/token?grant_type=refresh_token', {
+      metodo: 'POST',
+      corpo: { refresh_token: sessao.refreshToken }
+    })
+      .then(dado => guardarTokens(sessao, dado))
+      .finally(() => (sessao.renovando = null));
+  }
+
+  try {
+    await sessao.renovando;
+  } catch (erro) {
+    if (erro.status === 503) throw erro;
+    sessoes.delete(sessao.id);
+    throw new ErroDoBanco('Sua sessão expirou. Entre de novo.', 401);
+  }
+  return sessao.accessToken;
+}
+
+async function banco(sessao, caminho, opcoes = {}) {
+  return chamarSupabase(caminho, { ...opcoes, token: await tokenDaSessao(sessao) });
+}
+
+/* ------------------------------------------------------------------ */
+/* Peças no banco                                                      */
+/* ------------------------------------------------------------------ */
+
+const ID_VALIDO = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// O Supabase devolve no máximo 1000 linhas por vez.
+const TAMANHO_PAGINA = 1000;
+
+function daLinha(l) {
+  return {
+    id: l.id,
+    codigo: l.codigo,
+    nome: l.nome,
+    marca: l.marca,
+    categoria: l.categoria,
+    descricao: l.descricao,
+    fornecedor: l.fornecedor,
+    localizacao: l.localizacao,
+    precoCusto: Number(l.preco_custo) || 0,
+    precoVenda: Number(l.preco_venda) || 0,
+    estoque: l.estoque,
+    estoqueMinimo: l.estoque_minimo,
+    equivalentes: l.equivalentes || [],
+    aplicacoes: l.aplicacoes || [],
+    criadoEm: l.criado_em,
+    atualizadoEm: l.atualizado_em
+  };
+}
+
+function paraLinha(p) {
+  return {
+    id: p.id,
+    codigo: p.codigo,
+    codigo_chave: somenteAlfanumerico(p.codigo),
+    nome: p.nome,
+    marca: p.marca,
+    categoria: p.categoria,
+    descricao: p.descricao,
+    fornecedor: p.fornecedor,
+    localizacao: p.localizacao,
+    preco_custo: p.precoCusto,
+    preco_venda: p.precoVenda,
+    estoque: p.estoque,
+    estoque_minimo: p.estoqueMinimo,
+    equivalentes: p.equivalentes,
+    aplicacoes: p.aplicacoes,
+    criado_em: p.criadoEm,
+    atualizado_em: p.atualizadoEm
+  };
+}
+
+async function listarPecas(sessao) {
+  const todas = [];
+  for (let inicio = 0; ; inicio += TAMANHO_PAGINA) {
+    const pagina = await banco(
+      sessao,
+      `/rest/v1/pecas?select=*&order=codigo_chave.asc&limit=${TAMANHO_PAGINA}&offset=${inicio}`
+    );
+    todas.push(...pagina.map(daLinha));
+    if (pagina.length < TAMANHO_PAGINA) return todas;
   }
 }
 
-function salvarJSON(arquivo, dado) {
-  if (!fs.existsSync(PASTA_DADOS)) fs.mkdirSync(PASTA_DADOS, { recursive: true });
-  const temporario = arquivo + '.tmp';
-  fs.writeFileSync(temporario, JSON.stringify(dado, null, 2), 'utf8');
-  fs.renameSync(temporario, arquivo);
+async function pecaPorId(sessao, id) {
+  if (!ID_VALIDO.test(id)) return null;
+  const linhas = await banco(sessao, `/rest/v1/pecas?select=*&id=eq.${id}`);
+  return linhas.length ? daLinha(linhas[0]) : null;
 }
 
-const banco = {
-  get pecas() {
-    return lerJSON(ARQ_PECAS, []);
-  },
-  set pecas(v) {
-    salvarJSON(ARQ_PECAS, v);
-  },
-  get movimentos() {
-    return lerJSON(ARQ_MOVIMENTOS, []);
-  },
-  set movimentos(v) {
-    salvarJSON(ARQ_MOVIMENTOS, v);
-  }
-};
+async function pecaPorCodigo(sessao, codigo) {
+  const chave = encodeURIComponent(somenteAlfanumerico(codigo));
+  const linhas = await banco(sessao, `/rest/v1/pecas?select=*&codigo_chave=eq.${chave}`);
+  return linhas.length ? daLinha(linhas[0]) : null;
+}
 
 /* ------------------------------------------------------------------ */
 /* Normalização e busca                                                */
@@ -58,7 +203,7 @@ const banco = {
 function normalizar(texto) {
   return String(texto || '')
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
     .trim();
 }
@@ -256,7 +401,7 @@ function gerarCSV(pecas) {
         .join(';')
     );
   }
-  return '\uFEFF' + linhas.join('\r\n');
+  return '﻿' + linhas.join('\r\n');
 }
 
 function dividirLinhaCSV(linha, separador) {
@@ -283,8 +428,10 @@ function dividirLinhaCSV(linha, separador) {
   return campos.map(c => c.trim());
 }
 
+// Só devolve os campos que a planilha traz preenchidos. Assim, ao atualizar
+// uma peça que já existe, coluna ausente ou célula vazia mantém o valor atual.
 function lerCSV(texto) {
-  const limpo = texto.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').trim();
+  const limpo = texto.replace(/^﻿/, '').replace(/\r\n/g, '\n').trim();
   const linhas = limpo.split('\n').filter(l => l.trim());
   if (!linhas.length) return [];
   const separador = (linhas[0].match(/;/g) || []).length >= (linhas[0].match(/,/g) || []).length ? ';' : ',';
@@ -294,21 +441,26 @@ function lerCSV(texto) {
     const campos = dividirLinhaCSV(linha, separador);
     const obj = {};
     cabecalho.forEach((coluna, i) => (obj[coluna] = campos[i] ?? ''));
-    return {
-      codigo: obj.codigo || '',
-      nome: obj.nome || obj.descricao || '',
-      marca: obj.marca || '',
-      categoria: obj.categoria || '',
-      descricao: obj.descricao || '',
-      fornecedor: obj.fornecedor || '',
-      localizacao: obj.localizacao || '',
-      precoCusto: numero(obj.preco_custo, 0),
-      precoVenda: numero(obj.preco_venda, 0),
-      estoque: numero(obj.estoque, 0),
-      estoqueMinimo: numero(obj.estoque_minimo, 0),
-      equivalentes: (obj.equivalentes || '').split('|').map(s => s.trim()).filter(Boolean),
-      aplicacoes: (obj.aplicacoes || '').split('//').map(s => s.trim()).filter(Boolean).map(textoParaAplicacao)
-    };
+    const preenchido = coluna => obj[coluna] !== undefined && obj[coluna] !== '';
+
+    const peca = { codigo: obj.codigo || '' };
+    for (const campo of ['nome', 'marca', 'categoria', 'descricao', 'fornecedor', 'localizacao']) {
+      if (preenchido(campo)) peca[campo] = obj[campo];
+    }
+    // Planilhas de outros sistemas às vezes chamam o nome da peça de "descricao".
+    if (!cabecalho.includes('nome') && preenchido('descricao')) peca.nome = obj.descricao;
+
+    if (preenchido('preco_custo')) peca.precoCusto = numero(obj.preco_custo, 0);
+    if (preenchido('preco_venda')) peca.precoVenda = numero(obj.preco_venda, 0);
+    if (preenchido('estoque')) peca.estoque = numero(obj.estoque, 0);
+    if (preenchido('estoque_minimo')) peca.estoqueMinimo = numero(obj.estoque_minimo, 0);
+    if (preenchido('equivalentes')) {
+      peca.equivalentes = obj.equivalentes.split('|').map(s => s.trim()).filter(Boolean);
+    }
+    if (preenchido('aplicacoes')) {
+      peca.aplicacoes = obj.aplicacoes.split('//').map(s => s.trim()).filter(Boolean).map(textoParaAplicacao);
+    }
+    return peca;
   });
 }
 
@@ -324,6 +476,11 @@ function responderJSON(res, status, dado) {
     'Content-Length': Buffer.byteLength(corpo)
   });
   res.end(corpo);
+}
+
+function redirecionar(res, destino) {
+  res.writeHead(302, { Location: destino, 'Cache-Control': 'no-store' });
+  res.end();
 }
 
 function lerCorpo(req) {
@@ -361,7 +518,18 @@ const TIPOS = {
 };
 
 function servirEstatico(req, res, caminhoUrl) {
-  const relativo = caminhoUrl === '/' ? 'index.html' : decodeURIComponent(caminhoUrl).replace(/^\/+/, '');
+  const logado = Boolean(sessaoDaRequisicao(req));
+  // Sem login, a tela principal manda para a página de entrada, e vice-versa.
+  if ((caminhoUrl === '/' || caminhoUrl === '/index.html') && !logado) return redirecionar(res, '/login.html');
+  if (caminhoUrl === '/login.html' && logado) return redirecionar(res, '/');
+
+  let relativo;
+  try {
+    relativo = caminhoUrl === '/' ? 'index.html' : decodeURIComponent(caminhoUrl).replace(/^\/+/, '');
+  } catch (e) {
+    res.writeHead(400).end('Endereço inválido.');
+    return;
+  }
   const alvo = path.join(PASTA_PUBLICA, relativo);
   if (!alvo.startsWith(PASTA_PUBLICA)) {
     res.writeHead(403).end('Acesso negado.');
@@ -382,6 +550,62 @@ function servirEstatico(req, res, caminhoUrl) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Entrada e saída do sistema                                          */
+/* ------------------------------------------------------------------ */
+
+async function entrar(req, res) {
+  const corpo = await lerCorpo(req);
+  const email = String(corpo.email || '').trim().toLowerCase();
+  const senha = String(corpo.senha || '');
+  if (!email || !senha) return responderJSON(res, 400, { erro: 'Informe o e-mail e a senha.' });
+
+  let dado;
+  try {
+    dado = await chamarSupabase('/auth/v1/token?grant_type=password', {
+      metodo: 'POST',
+      corpo: { email, password: senha }
+    });
+  } catch (erro) {
+    if (erro.status === 400 || erro.status === 401) {
+      return responderJSON(res, 401, { erro: 'E-mail ou senha incorretos.' });
+    }
+    if (erro.status === 429) {
+      return responderJSON(res, 429, { erro: 'Muitas tentativas seguidas. Espere um minuto e tente de novo.' });
+    }
+    throw erro;
+  }
+
+  // Ter conta não basta: a pessoa precisa estar liberada na tabela "usuarios".
+  const perfil = await chamarSupabase(`/rest/v1/usuarios?select=nome,email&id=eq.${dado.user.id}`, {
+    token: dado.access_token
+  });
+  if (!perfil.length) {
+    chamarSupabase('/auth/v1/logout', { metodo: 'POST', token: dado.access_token }).catch(() => {});
+    return responderJSON(res, 403, { erro: 'Este usuário não tem acesso ao sistema. Fale com o responsável.' });
+  }
+
+  const sessao = {
+    id: crypto.randomBytes(32).toString('hex'),
+    usuario: { id: dado.user.id, email: dado.user.email, nome: perfil[0].nome || dado.user.email }
+  };
+  guardarTokens(sessao, dado);
+  sessoes.set(sessao.id, sessao);
+
+  res.setHeader('Set-Cookie', `sessao=${sessao.id}; HttpOnly; SameSite=Strict; Path=/`);
+  return responderJSON(res, 200, { usuario: sessao.usuario });
+}
+
+function sair(req, res) {
+  const sessao = sessaoDaRequisicao(req);
+  if (sessao) {
+    sessoes.delete(sessao.id);
+    chamarSupabase('/auth/v1/logout', { metodo: 'POST', token: sessao.accessToken }).catch(() => {});
+  }
+  res.setHeader('Set-Cookie', 'sessao=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0');
+  return responderJSON(res, 200, { saiu: true });
+}
+
+/* ------------------------------------------------------------------ */
 /* Rotas da API                                                        */
 /* ------------------------------------------------------------------ */
 
@@ -390,6 +614,18 @@ async function tratarAPI(req, res, url) {
   const recurso = partes[1];
   const id = partes[2];
   const acao = partes[3];
+
+  if (recurso === 'login' && req.method === 'POST') return entrar(req, res);
+  if (recurso === 'logout' && req.method === 'POST') return sair(req, res);
+
+  // Daqui para baixo, só com login.
+  const sessao = sessaoDaRequisicao(req);
+  if (!sessao) return responderJSON(res, 401, { erro: 'Entre com seu usuário para continuar.' });
+
+  /* ---- Quem está usando ---- */
+  if (recurso === 'sessao' && req.method === 'GET') {
+    return responderJSON(res, 200, { usuario: sessao.usuario });
+  }
 
   /* ---- Listagem e busca ---- */
   if (recurso === 'pecas' && !id && req.method === 'GET') {
@@ -401,7 +637,7 @@ async function tratarAPI(req, res, url) {
       situacao: url.searchParams.get('situacao') || '',
       ordem: url.searchParams.get('ordem') || 'relevancia'
     };
-    const todas = banco.pecas;
+    const todas = await listarPecas(sessao);
     const encontradas = buscar(todas, filtros);
     return responderJSON(res, 200, {
       total: todas.length,
@@ -416,42 +652,55 @@ async function tratarAPI(req, res, url) {
     if (!String(corpo.codigo || '').trim() || !String(corpo.nome || '').trim()) {
       return responderJSON(res, 400, { erro: 'Informe ao menos o código e o nome da peça.' });
     }
-    const pecas = banco.pecas;
-    const duplicada = pecas.find(p => somenteAlfanumerico(p.codigo) === somenteAlfanumerico(corpo.codigo));
+    const duplicada = await pecaPorCodigo(sessao, corpo.codigo);
     if (duplicada) {
       return responderJSON(res, 409, { erro: `O código ${corpo.codigo} já está cadastrado em "${duplicada.nome}".` });
     }
-    const nova = sanearPeca(corpo, null);
-    pecas.push(nova);
-    banco.pecas = pecas;
-    return responderJSON(res, 201, nova);
+    const [linha] = await banco(sessao, '/rest/v1/pecas', {
+      metodo: 'POST',
+      corpo: paraLinha(sanearPeca(corpo, null)),
+      cabecalhos: { Prefer: 'return=representation' }
+    });
+    return responderJSON(res, 201, daLinha(linha));
   }
 
   /* ---- Edição ---- */
   if (recurso === 'pecas' && id && !acao && req.method === 'PUT') {
     const corpo = await lerCorpo(req);
-    const pecas = banco.pecas;
-    const indice = pecas.findIndex(p => p.id === id);
-    if (indice < 0) return responderJSON(res, 404, { erro: 'Peça não encontrada.' });
+    const anterior = await pecaPorId(sessao, id);
+    if (!anterior) return responderJSON(res, 404, { erro: 'Peça não encontrada.' });
 
-    const conflito = pecas.find(
-      p => p.id !== id && somenteAlfanumerico(p.codigo) === somenteAlfanumerico(corpo.codigo || pecas[indice].codigo)
-    );
-    if (conflito) {
+    const conflito = await pecaPorCodigo(sessao, corpo.codigo || anterior.codigo);
+    if (conflito && conflito.id !== id) {
       return responderJSON(res, 409, { erro: `O código ${corpo.codigo} já pertence a "${conflito.nome}".` });
     }
 
-    pecas[indice] = sanearPeca(corpo, pecas[indice]);
-    banco.pecas = pecas;
-    return responderJSON(res, 200, pecas[indice]);
+    // "versao" é a data da última alteração que a tela conhecia. Se outro
+    // computador mexeu na peça depois disso, nada é gravado por cima.
+    let filtro = `id=eq.${id}`;
+    if (corpo.versao) filtro += `&atualizado_em=eq.${encodeURIComponent(corpo.versao)}`;
+
+    const linhas = await banco(sessao, `/rest/v1/pecas?${filtro}`, {
+      metodo: 'PATCH',
+      corpo: paraLinha(sanearPeca(corpo, anterior)),
+      cabecalhos: { Prefer: 'return=representation' }
+    });
+    if (!linhas.length) {
+      return responderJSON(res, 409, {
+        erro: 'Esta peça foi alterada em outro computador enquanto você editava. Feche, abra a peça de novo e refaça a alteração.'
+      });
+    }
+    return responderJSON(res, 200, daLinha(linhas[0]));
   }
 
   /* ---- Exclusão ---- */
   if (recurso === 'pecas' && id && !acao && req.method === 'DELETE') {
-    const pecas = banco.pecas;
-    const restantes = pecas.filter(p => p.id !== id);
-    if (restantes.length === pecas.length) return responderJSON(res, 404, { erro: 'Peça não encontrada.' });
-    banco.pecas = restantes;
+    if (!ID_VALIDO.test(id)) return responderJSON(res, 404, { erro: 'Peça não encontrada.' });
+    const removidas = await banco(sessao, `/rest/v1/pecas?id=eq.${id}`, {
+      metodo: 'DELETE',
+      cabecalhos: { Prefer: 'return=representation' }
+    });
+    if (!removidas.length) return responderJSON(res, 404, { erro: 'Peça não encontrada.' });
     return responderJSON(res, 200, { removida: true });
   }
 
@@ -460,51 +709,53 @@ async function tratarAPI(req, res, url) {
     const corpo = await lerCorpo(req);
     const quantidade = Math.abs(Math.round(numero(corpo.quantidade, 0)));
     if (!quantidade) return responderJSON(res, 400, { erro: 'Informe uma quantidade maior que zero.' });
+    if (!ID_VALIDO.test(id)) return responderJSON(res, 404, { erro: 'Peça não encontrada.' });
 
-    const pecas = banco.pecas;
-    const peca = pecas.find(p => p.id === id);
-    if (!peca) return responderJSON(res, 404, { erro: 'Peça não encontrada.' });
-
-    const tipo = corpo.tipo === 'saida' ? 'saida' : 'entrada';
-    if (tipo === 'saida' && quantidade > (peca.estoque || 0)) {
-      return responderJSON(res, 400, {
-        erro: `Saldo insuficiente: há ${peca.estoque || 0} em estoque e você pediu baixa de ${quantidade}.`
-      });
-    }
-
-    peca.estoque = (Number(peca.estoque) || 0) + (tipo === 'entrada' ? quantidade : -quantidade);
-    peca.atualizadoEm = new Date().toISOString();
-    banco.pecas = pecas;
-
-    const movimentos = banco.movimentos;
-    movimentos.unshift({
-      id: crypto.randomUUID(),
-      pecaId: peca.id,
-      codigo: peca.codigo,
-      nome: peca.nome,
-      tipo,
-      quantidade,
-      saldoApos: peca.estoque,
-      motivo: String(corpo.motivo || '').trim(),
-      data: new Date().toISOString()
+    // A conferência de saldo e a gravação acontecem juntas, dentro do banco.
+    const resultado = await banco(sessao, '/rest/v1/rpc/registrar_movimento', {
+      metodo: 'POST',
+      corpo: {
+        p_peca_id: id,
+        p_tipo: corpo.tipo === 'saida' ? 'saida' : 'entrada',
+        p_quantidade: quantidade,
+        p_motivo: String(corpo.motivo || '').trim()
+      }
     });
-    banco.movimentos = movimentos.slice(0, 5000);
-
+    const peca = daLinha(Array.isArray(resultado) ? resultado[0] : resultado);
     return responderJSON(res, 200, { ...peca, situacao: situacaoDaPeca(peca) });
   }
 
   /* ---- Histórico de movimentações ---- */
   if (recurso === 'movimentacoes' && req.method === 'GET') {
-    const limite = Number(url.searchParams.get('limite')) || 100;
+    const limite = Math.min(Math.max(Number(url.searchParams.get('limite')) || 100, 1), TAMANHO_PAGINA);
     const pecaId = url.searchParams.get('pecaId');
-    let lista = banco.movimentos;
-    if (pecaId) lista = lista.filter(m => m.pecaId === pecaId);
-    return responderJSON(res, 200, lista.slice(0, limite));
+    let caminho = `/rest/v1/movimentacoes?select=*&order=data.desc&limit=${limite}`;
+    if (pecaId) {
+      if (!ID_VALIDO.test(pecaId)) return responderJSON(res, 200, []);
+      caminho += `&peca_id=eq.${pecaId}`;
+    }
+    const linhas = await banco(sessao, caminho);
+    return responderJSON(
+      res,
+      200,
+      linhas.map(m => ({
+        id: m.id,
+        pecaId: m.peca_id,
+        codigo: m.codigo,
+        nome: m.nome,
+        tipo: m.tipo,
+        quantidade: m.quantidade,
+        saldoApos: m.saldo_apos,
+        motivo: m.motivo,
+        usuario: m.usuario_email || '',
+        data: m.data
+      }))
+    );
   }
 
   /* ---- Resumo do estoque ---- */
   if (recurso === 'resumo' && req.method === 'GET') {
-    const pecas = banco.pecas;
+    const pecas = await listarPecas(sessao);
     const resumo = {
       totalItens: pecas.length,
       totalUnidades: pecas.reduce((s, p) => s + (Number(p.estoque) || 0), 0),
@@ -523,7 +774,7 @@ async function tratarAPI(req, res, url) {
 
   /* ---- Exportar CSV ---- */
   if (recurso === 'exportar' && req.method === 'GET') {
-    const csv = gerarCSV(banco.pecas);
+    const csv = gerarCSV(await listarPecas(sessao));
     res.writeHead(200, {
       'Content-Type': 'text/csv; charset=utf-8',
       'Content-Disposition': `attachment; filename="pecas-${new Date().toISOString().slice(0, 10)}.csv"`
@@ -537,26 +788,35 @@ async function tratarAPI(req, res, url) {
     const linhas = lerCSV(String(corpo.csv || ''));
     if (!linhas.length) return responderJSON(res, 400, { erro: 'Nenhuma linha válida encontrada no arquivo.' });
 
-    const pecas = banco.pecas;
+    const existentes = new Map((await listarPecas(sessao)).map(p => [somenteAlfanumerico(p.codigo), p]));
+    // Um código repetido na planilha vira uma peça só (vale a última linha).
+    const lote = new Map();
     let criadas = 0;
     let atualizadas = 0;
     let ignoradas = 0;
 
     for (const linha of linhas) {
-      if (!linha.codigo || !linha.nome) {
+      const chave = somenteAlfanumerico(linha.codigo);
+      const anterior = lote.get(chave) || existentes.get(chave) || null;
+      if (!chave || (!anterior && !String(linha.nome || '').trim())) {
         ignoradas++;
         continue;
       }
-      const indice = pecas.findIndex(p => somenteAlfanumerico(p.codigo) === somenteAlfanumerico(linha.codigo));
-      if (indice >= 0) {
-        pecas[indice] = sanearPeca(linha, pecas[indice]);
-        atualizadas++;
-      } else {
-        pecas.push(sanearPeca(linha, null));
-        criadas++;
+      if (!lote.has(chave)) {
+        if (existentes.has(chave)) atualizadas++;
+        else criadas++;
       }
+      lote.set(chave, sanearPeca(linha, anterior));
     }
-    banco.pecas = pecas;
+
+    const pecas = [...lote.values()].map(paraLinha);
+    for (let i = 0; i < pecas.length; i += 500) {
+      await banco(sessao, '/rest/v1/pecas?on_conflict=codigo_chave', {
+        metodo: 'POST',
+        corpo: pecas.slice(i, i + 500),
+        cabecalhos: { Prefer: 'resolution=merge-duplicates,return=minimal' }
+      });
+    }
     return responderJSON(res, 200, { criadas, atualizadas, ignoradas });
   }
 
@@ -567,14 +827,8 @@ async function tratarAPI(req, res, url) {
 /* Servidor                                                            */
 /* ------------------------------------------------------------------ */
 
-function criarServidor({ pastaPublica, pastaDados }) {
+function criarServidor({ pastaPublica }) {
   PASTA_PUBLICA = pastaPublica;
-  PASTA_DADOS = pastaDados;
-  ARQ_PECAS = path.join(pastaDados, 'pecas.json');
-  ARQ_MOVIMENTOS = path.join(pastaDados, 'movimentacoes.json');
-
-  if (!fs.existsSync(PASTA_DADOS)) fs.mkdirSync(PASTA_DADOS, { recursive: true });
-  if (!fs.existsSync(ARQ_PECAS)) salvarJSON(ARQ_PECAS, []);
 
   return http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
@@ -583,7 +837,8 @@ function criarServidor({ pastaPublica, pastaDados }) {
       try {
         await tratarAPI(req, res, url);
       } catch (erro) {
-        responderJSON(res, 500, { erro: erro.message || 'Erro inesperado no servidor.' });
+        const status = erro.status >= 400 && erro.status < 600 ? erro.status : 500;
+        responderJSON(res, status, { erro: erro.message || 'Erro inesperado no servidor.' });
       }
       return;
     }
@@ -596,9 +851,9 @@ function criarServidor({ pastaPublica, pastaDados }) {
  * Sobe o servidor numa porta livre escolhida pelo sistema.
  * Devolve { servidor, porta }.
  */
-function iniciar({ pastaPublica, pastaDados, porta = 0 }) {
+function iniciar({ pastaPublica, porta = 0 }) {
   return new Promise((resolve, reject) => {
-    const servidor = criarServidor({ pastaPublica, pastaDados });
+    const servidor = criarServidor({ pastaPublica });
     servidor.once('error', reject);
     servidor.listen(porta, '127.0.0.1', () => {
       resolve({ servidor, porta: servidor.address().port });
@@ -606,22 +861,14 @@ function iniciar({ pastaPublica, pastaDados, porta = 0 }) {
   });
 }
 
-module.exports = { criarServidor, iniciar, contarPecas: () => banco.pecas.length };
+module.exports = { criarServidor, iniciar };
 
 /* --- Modo avulso: node servidor.js, sem janela, para depuração --- */
 if (require.main === module) {
-  const pastaDados = path.join(__dirname, 'dados-teste');
-  const semente = path.join(__dirname, 'dados-iniciais', 'pecas.json');
-  if (!fs.existsSync(pastaDados)) fs.mkdirSync(pastaDados, { recursive: true });
-  if (!fs.existsSync(path.join(pastaDados, 'pecas.json')) && fs.existsSync(semente)) {
-    fs.copyFileSync(semente, path.join(pastaDados, 'pecas.json'));
-  }
-
   iniciar({
     pastaPublica: path.join(__dirname, 'public'),
-    pastaDados,
     porta: Number(process.env.PORTA || 3000)
   }).then(({ porta }) => {
-    console.log(`\n  Motor no ar em http://localhost:${porta}\n  Ctrl + C para encerrar.\n`);
+    console.log(`\n  Motor no ar em http://localhost:${porta}\n  Banco: ${SUPABASE_URL}\n  Ctrl + C para encerrar.\n`);
   });
 }

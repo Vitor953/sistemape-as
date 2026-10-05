@@ -10,6 +10,7 @@
   "scripts": {
     "start": "electron .",
     "motor": "node servidor.js",
+    "criar-usuario": "node scripts/criar-usuario.js",
     "instalador": "electron-builder --win --publish never",
     "publicar": "electron-builder --win --publish always"
   },
@@ -28,8 +29,8 @@
       "main.js",
       "preload.js",
       "servidor.js",
+      "config.js",
       "public/**/*",
-      "dados-iniciais/**/*",
       "build/icone.ico"
     ],
     "win": {

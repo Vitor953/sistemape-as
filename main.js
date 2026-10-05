@@ -7,32 +7,12 @@
 
 const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron');
 const path = require('path');
-const fs = require('fs');
 const { iniciar } = require('./servidor');
+const { SUPABASE_URL } = require('./config');
 const { autoUpdater } = require('electron-updater');
 
-/* ------------------------------------------------------------------ */
-/* Pastas                                                              */
-/* ------------------------------------------------------------------ */
-
-// As telas viajam dentro do programa.
+// As telas viajam dentro do programa. Os dados ficam no Supabase.
 const PASTA_PUBLICA = path.join(__dirname, 'public');
-
-// O catálogo fica numa pasta do usuário, que continua intacta a cada
-// atualização do programa. No Windows:
-// C:\Users\SEU-NOME\AppData\Roaming\Consulta de Autopecas\dados
-const PASTA_DADOS = path.join(app.getPath('userData'), 'dados');
-
-// Catálogo de demonstração, copiado só na primeira vez que o programa roda.
-const SEMENTE = path.join(__dirname, 'dados-iniciais', 'pecas.json');
-
-function prepararDados() {
-  if (!fs.existsSync(PASTA_DADOS)) fs.mkdirSync(PASTA_DADOS, { recursive: true });
-  const destino = path.join(PASTA_DADOS, 'pecas.json');
-  if (!fs.existsSync(destino) && fs.existsSync(SEMENTE)) {
-    fs.copyFileSync(SEMENTE, destino);
-  }
-}
 
 /* ------------------------------------------------------------------ */
 /* Janela                                                              */
@@ -42,7 +22,7 @@ let janela = null;
 let endereco = null;
 
 async function criarJanela() {
-  const { porta } = await iniciar({ pastaPublica: PASTA_PUBLICA, pastaDados: PASTA_DADOS, porta: 0 });
+  const { porta } = await iniciar({ pastaPublica: PASTA_PUBLICA, porta: 0 });
   endereco = `http://127.0.0.1:${porta}`;
 
   janela = new BrowserWindow({
@@ -183,14 +163,7 @@ function montarMenu() {
   const menu = Menu.buildFromTemplate([
     {
       label: 'Arquivo',
-      submenu: [
-        {
-          label: 'Abrir pasta do catálogo',
-          click: () => shell.openPath(PASTA_DADOS)
-        },
-        { type: 'separator' },
-        { label: 'Sair', role: 'quit' }
-      ]
+      submenu: [{ label: 'Sair', role: 'quit' }]
     },
     {
       label: 'Exibir',
@@ -218,7 +191,7 @@ function montarMenu() {
               type: 'info',
               title: 'Sobre',
               message: 'Consulta de Autopeças',
-              detail: `Versão ${app.getVersion()}\nCatálogo em: ${PASTA_DADOS}`,
+              detail: `Versão ${app.getVersion()}\nBanco de dados: ${SUPABASE_URL}`,
               buttons: ['Fechar']
             })
         }
@@ -250,7 +223,6 @@ if (!instanciaUnica) {
   });
 
   app.whenReady().then(async () => {
-    prepararDados();
     montarMenu();
 
     try {

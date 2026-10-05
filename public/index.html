@@ -25,6 +25,10 @@
     <div>
       <h1>Consulta de peças</h1>
       <p id="rodapeContagem">carregando catálogo…</p>
+      <p class="topo__usuario" id="topoUsuario" hidden>
+        <span id="usuarioNome"></span> ·
+        <button class="topo__sair" id="btSair" type="button">Sair</button>
+      </p>
     </div>
   </div>
 
@@ -110,6 +114,7 @@
 
     <form id="formPeca" class="formulario">
       <input type="hidden" id="pecaId">
+      <input type="hidden" id="pecaVersao">
 
       <div class="campo campo--terco">
         <label for="fCodigo">Código</label>

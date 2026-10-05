@@ -700,6 +700,77 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .gaveta__conteudo { padding: 26px 20px 50px; border-left: 0; border-top: 3px solid var(--ambar); }
 }
 
+/* ------------------------- Usuário no topo ----------------------- */
+
+.topo__marca .topo__usuario {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 1px 0 0;
+  font-size: 12px;
+  color: var(--aco-claro);
+}
+
+.topo__marca .topo__usuario[hidden] { display: none; }
+
+.topo__sair {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--ambar);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.topo__sair:hover { text-decoration: underline; }
+
+/* ------------------------------ Login ---------------------------- */
+
+.tela-login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: var(--tinta);
+}
+
+.login {
+  width: 100%;
+  max-width: 400px;
+  background: var(--papel-alto);
+  border-top: 4px solid var(--ambar);
+  border-radius: var(--raio-grande);
+  padding: 32px 32px 26px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.login__topo { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
+.login__topo h1 { font-size: 20px; line-height: 1.2; }
+.login__topo p { margin: 3px 0 0; font-size: 13.5px; color: var(--aco); }
+
+.login__formulario { display: flex; flex-direction: column; gap: 16px; }
+
+.login__erro {
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--vermelho);
+  border-radius: var(--raio);
+  background: var(--vermelho-fundo);
+  color: var(--vermelho);
+  font-size: 13.5px;
+}
+
+.login__erro[hidden] { display: none; }
+
+.login__botao { padding: 11px 15px; font-size: 15px; margin-top: 4px; }
+.login__botao:disabled { opacity: 0.7; cursor: wait; }
+
+.login__rodape { margin: 22px 0 0; font-size: 12.5px; color: var(--aco-claro); text-align: center; }
+
+@media (max-width: 760px) {
+  .login { padding: 26px 20px 22px; }
+}
+
 /* ---------------------- Faixa de atualização --------------------- */
 /* Ocupa a primeira linha do topo, de ponta a ponta, e acompanha a rolagem. */
 
