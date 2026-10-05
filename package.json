@@ -48,8 +48,8 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "interclubesautomacao-bit",
-      "repo": "consulta-autopecas"
+      "owner": "Vitor953",
+      "repo": "sistemape-as"
     }
   }
 }
