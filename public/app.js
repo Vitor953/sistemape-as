@@ -537,6 +537,7 @@ $$('.aba').forEach(aba =>
     $$('.painel').forEach(p => p.classList.remove('painel--ativo'));
     aba.classList.add('aba--ativa');
     $(`#painel-${aba.dataset.aba}`).classList.add('painel--ativo');
+    if (aba.dataset.aba === 'graficos') carregarPainel();
     if (aba.dataset.aba === 'estoque') carregarReposicao();
     if (aba.dataset.aba === 'movimentos') carregarMovimentos();
   })

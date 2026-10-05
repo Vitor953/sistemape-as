@@ -184,6 +184,20 @@ async function listarPecas(sessao) {
   }
 }
 
+async function listarMovimentosDesde(sessao, inicioISO) {
+  const todos = [];
+  const desde = encodeURIComponent(inicioISO);
+  for (let inicio = 0; ; inicio += TAMANHO_PAGINA) {
+    const pagina = await banco(
+      sessao,
+      `/rest/v1/movimentacoes?select=peca_id,codigo,nome,tipo,quantidade,data&data=gte.${desde}` +
+        `&order=data.asc&limit=${TAMANHO_PAGINA}&offset=${inicio}`
+    );
+    todos.push(...pagina);
+    if (pagina.length < TAMANHO_PAGINA) return todos;
+  }
+}
+
 async function pecaPorId(sessao, id) {
   if (!ID_VALIDO.test(id)) return null;
   const linhas = await banco(sessao, `/rest/v1/pecas?select=*&id=eq.${id}`);
@@ -291,6 +305,121 @@ function buscar(pecas, filtros) {
   }
 
   return resultado;
+}
+
+/* ------------------------------------------------------------------ */
+/* Painel                                                              */
+/* ------------------------------------------------------------------ */
+
+// Data no fuso do computador (o dia da loja), no formato 2026-10-05.
+function diaLocal(data) {
+  const d = new Date(data);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// Os maiores primeiro; o que passar do limite vira uma linha "Outras".
+function topoComOutras(mapa, limite, rotuloOutras = 'Outras') {
+  const ordenado = [...mapa.entries()].map(([rotulo, valor]) => ({ rotulo, valor })).sort((a, b) => b.valor - a.valor);
+  if (ordenado.length <= limite) return ordenado;
+  const resto = ordenado.slice(limite - 1).reduce((s, i) => s + i.valor, 0);
+  return [...ordenado.slice(0, limite - 1), { rotulo: rotuloOutras, valor: resto }];
+}
+
+const FAIXAS_DE_PRECO = [
+  { rotulo: 'até 50', ate: 50 },
+  { rotulo: '50–100', ate: 100 },
+  { rotulo: '100–200', ate: 200 },
+  { rotulo: '200–500', ate: 500 },
+  { rotulo: '500–1 mil', ate: 1000 },
+  { rotulo: 'acima de 1 mil', ate: Infinity }
+];
+
+function montarPainel(pecas, movimentos, dias) {
+  const somar = (lista, f) => lista.reduce((s, p) => s + (Number(f(p)) || 0), 0);
+
+  /* Estoque agora */
+  const valorCusto = somar(pecas, p => p.precoCusto * p.estoque);
+  const valorVenda = somar(pecas, p => p.precoVenda * p.estoque);
+  const situacoes = { disponivel: 0, critico: 0, zerado: 0 };
+  pecas.forEach(p => situacoes[situacaoDaPeca(p)]++);
+
+  const valorPorCategoria = new Map();
+  const custoPorCategoria = new Map();
+  const vendaPorCategoria = new Map();
+  const pecasPorMontadora = new Map();
+  for (const p of pecas) {
+    const categoria = p.categoria || 'Sem categoria';
+    valorPorCategoria.set(categoria, (valorPorCategoria.get(categoria) || 0) + p.precoVenda * p.estoque);
+    custoPorCategoria.set(categoria, (custoPorCategoria.get(categoria) || 0) + p.precoCusto);
+    vendaPorCategoria.set(categoria, (vendaPorCategoria.get(categoria) || 0) + p.precoVenda);
+    for (const montadora of new Set((p.aplicacoes || []).map(a => a.montadora).filter(Boolean))) {
+      pecasPorMontadora.set(montadora, (pecasPorMontadora.get(montadora) || 0) + 1);
+    }
+  }
+
+  // Margem da categoria = quanto o preço de venda está acima do custo, somando as peças dela.
+  const margemPorCategoria = [...custoPorCategoria.entries()]
+    .filter(([, custo]) => custo > 0)
+    .map(([rotulo, custo]) => ({ rotulo, valor: ((vendaPorCategoria.get(rotulo) - custo) / custo) * 100 }))
+    .sort((a, b) => b.valor - a.valor);
+
+  const faixasDePreco = FAIXAS_DE_PRECO.map(f => ({ rotulo: f.rotulo, valor: 0 }));
+  for (const p of pecas) faixasDePreco[FAIXAS_DE_PRECO.findIndex(f => p.precoVenda < f.ate)].valor++;
+
+  // As que acabam primeiro: saldo mais perto (ou abaixo) do mínimo.
+  const reposicao = pecas
+    .filter(p => situacaoDaPeca(p) !== 'disponivel')
+    .sort((a, b) => a.estoque - a.estoqueMinimo - (b.estoque - b.estoqueMinimo) || a.estoque - b.estoque)
+    .slice(0, 8)
+    .map(p => ({ codigo: p.codigo, nome: p.nome, estoque: p.estoque, minimo: p.estoqueMinimo }));
+
+  /* Movimento no período */
+  const porDia = new Map();
+  const hoje = new Date();
+  for (let i = dias - 1; i >= 0; i--) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - i);
+    porDia.set(diaLocal(d), { data: diaLocal(d), entradas: 0, saidas: 0 });
+  }
+  const vendidas = new Map();
+  for (const m of movimentos) {
+    const dia = porDia.get(diaLocal(m.data));
+    if (!dia) continue;
+    if (m.tipo === 'entrada') dia.entradas += m.quantidade;
+    else {
+      dia.saidas += m.quantidade;
+      const chave = m.peca_id || m.codigo;
+      const atual = vendidas.get(chave) || { codigo: m.codigo, nome: m.nome, valor: 0 };
+      atual.valor += m.quantidade;
+      vendidas.set(chave, atual);
+    }
+  }
+  const serie = [...porDia.values()];
+
+  return {
+    dias,
+    estoque: {
+      itens: pecas.length,
+      unidades: somar(pecas, p => p.estoque),
+      valorCusto,
+      valorVenda,
+      situacoes
+    },
+    periodo: {
+      entradas: somar(serie, d => d.entradas),
+      saidas: somar(serie, d => d.saidas),
+      movimentos: movimentos.length
+    },
+    porDia: serie,
+    maisVendidas: [...vendidas.values()]
+      .sort((a, b) => b.valor - a.valor)
+      .slice(0, 8)
+      .map(v => ({ rotulo: `${v.codigo} · ${v.nome}`, valor: v.valor })),
+    valorPorCategoria: topoComOutras(valorPorCategoria, 8),
+    margemPorCategoria: margemPorCategoria.slice(0, 8),
+    pecasPorMontadora: topoComOutras(pecasPorMontadora, 8, 'Outras montadoras'),
+    faixasDePreco,
+    reposicao
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -770,6 +899,18 @@ async function tratarAPI(req, res, url) {
       ].sort((a, b) => a.localeCompare(b))
     };
     return responderJSON(res, 200, resumo);
+  }
+
+  /* ---- Painel ---- */
+  if (recurso === 'painel' && req.method === 'GET') {
+    const dias = [7, 30, 90].includes(Number(url.searchParams.get('dias'))) ? Number(url.searchParams.get('dias')) : 30;
+    const hoje = new Date();
+    const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - (dias - 1));
+    const [pecas, movimentos] = await Promise.all([
+      listarPecas(sessao),
+      listarMovimentosDesde(sessao, inicio.toISOString())
+    ]);
+    return responderJSON(res, 200, montarPainel(pecas, movimentos, dias));
   }
 
   /* ---- Exportar CSV ---- */

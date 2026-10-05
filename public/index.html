@@ -34,6 +34,7 @@
 
   <nav class="abas" role="tablist">
     <button class="aba aba--ativa" data-aba="catalogo" role="tab">Catálogo</button>
+    <button class="aba" data-aba="graficos" role="tab">Painel</button>
     <button class="aba" data-aba="estoque" role="tab">Estoque</button>
     <button class="aba" data-aba="movimentos" role="tab">Movimentações</button>
   </nav>
@@ -81,6 +82,17 @@
 
   <p class="resultado-contagem" id="resultadoContagem"></p>
   <div id="listaPecas" class="lista"></div>
+</main>
+
+<!-- ======================== PAINEL ======================== -->
+<main class="painel" id="painel-graficos">
+  <div class="dash-filtros" role="group" aria-label="Período das movimentações">
+    <span class="dash-filtros__rotulo">Movimento dos últimos</span>
+    <button class="dash-periodo" type="button" data-dias="7">7 dias</button>
+    <button class="dash-periodo dash-periodo--ativo" type="button" data-dias="30" aria-pressed="true">30 dias</button>
+    <button class="dash-periodo" type="button" data-dias="90">90 dias</button>
+  </div>
+  <div id="dashConteudo" class="dash"></div>
 </main>
 
 <!-- ======================= ESTOQUE ======================= -->
@@ -229,5 +241,6 @@
 <div class="aviso" id="aviso" role="status" aria-live="polite"></div>
 
 <script src="app.js"></script>
+<script src="painel.js"></script>
 </body>
 </html>
