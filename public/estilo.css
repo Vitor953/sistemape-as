@@ -42,6 +42,12 @@
 
   --fonte: 'Archivo', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, 'SF Mono', monospace;
+
+  /* No programa instalado, os botões da janela (minimizar, maximizar, fechar)
+     ficam por cima da tela, no canto direito. O Windows informa onde estão;
+     no navegador estas medidas valem zero. */
+  --reserva-controles: calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw));
+  --altura-controles: env(titlebar-area-height, 0px);
 }
 
 * { box-sizing: border-box; }
@@ -130,7 +136,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
   gap: 12px;
   padding: 20px 18px 18px;
   border-bottom: 1px solid var(--borda);
+  -webkit-app-region: drag; /* arrastar a janela por aqui */
 }
+
+.lateral__marca .logo3d,
+.lateral__recolher { -webkit-app-region: no-drag; }
 
 .lateral__nome { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; line-height: 1.2; }
 .lateral__nome b { display: block; font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
@@ -318,11 +328,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 22px 36px;
-  background: rgba(8, 11, 17, 0.72);
+  padding: 22px calc(36px + var(--reserva-controles)) 22px 36px;
+  background: rgba(8, 11, 17, 0.92);
   backdrop-filter: blur(14px) saturate(140%);
   border-bottom: 1px solid var(--borda);
+  -webkit-app-region: drag; /* arrastar a janela por aqui */
 }
+
+.cabecalho button { -webkit-app-region: no-drag; }
 
 .cabecalho__titulo { font-size: 24px; font-weight: 700; letter-spacing: -0.025em; }
 .cabecalho__sub { margin: 2px 0 0; font-size: 13px; color: var(--texto-3); font-family: var(--mono); }
@@ -608,6 +621,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .gaveta[data-aberta='sim'] { visibility: visible; opacity: 1; }
 
+/* Com a gaveta ou um formulário aberto, nada arrasta a janela: os cliques
+   vão para eles, mesmo no alto da tela. */
+.gaveta[data-aberta='sim'],
+.modal[data-aberto='sim'] { -webkit-app-region: no-drag; }
+
 .gaveta__conteudo {
   position: relative;
   width: min(540px, 100%);
@@ -616,13 +634,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: linear-gradient(180deg, #121927, #0d121c);
   border-left: 1px solid var(--borda-forte);
   box-shadow: -30px 0 60px -20px rgba(0, 0, 0, 0.8);
-  padding: 32px 34px 60px;
+  padding: calc(32px + var(--altura-controles)) 34px 60px;
   transform: translateX(24px);
   transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .gaveta[data-aberta='sim'] .gaveta__conteudo { transform: none; }
 
-.gaveta__fechar { position: absolute; top: 18px; right: 20px; border: 0; background: none; font-size: 26px; line-height: 1; color: var(--texto-3); cursor: pointer; }
+.gaveta__fechar { position: absolute; top: calc(18px + var(--altura-controles)); right: 20px; border: 0; background: none; font-size: 26px; line-height: 1; color: var(--texto-3); cursor: pointer; }
 .gaveta__fechar:hover { color: var(--texto); }
 
 .detalhe__codigo {
@@ -806,7 +824,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
   display: flex;
   align-items: center;
   gap: 18px;
-  padding: 10px 36px;
+  min-height: var(--altura-controles);
+  padding: 10px calc(36px + var(--reserva-controles)) 10px 36px;
   background: var(--cartao-2);
   border-bottom: 1px solid var(--borda);
   font-weight: 500;
@@ -832,8 +851,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .faixa-atualizacao__botao:hover { background: #151c28; }
 .faixa-atualizacao__botao:disabled { opacity: 0.6; cursor: wait; }
 
+/* Âmbar sólido: os botões da janela, pintados da mesma cor, emendam com a faixa. */
 .faixa-atualizacao[data-fase='pronta'] {
-  background: linear-gradient(90deg, #ffbf3a, var(--ambar));
+  background: var(--ambar);
   color: #12100a;
   font-size: 16px;
   font-weight: 600;
@@ -1120,6 +1140,17 @@ button, input, select, textarea { font: inherit; color: inherit; }
     var(--fundo);
 }
 
+/* Faixa invisível no alto da página de entrada para arrastar a janela. */
+.arrastar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  height: var(--altura-controles);
+  -webkit-app-region: drag;
+}
+
 /* A cena fica na parte esquerda; o cartão de entrada, à direita. */
 .login-cena { position: absolute; top: 0; bottom: 0; left: 0; width: 62%; }
 
@@ -1188,7 +1219,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .app .lateral__secao { height: 1px; margin: 14px 8px; background: var(--borda); color: transparent; overflow: hidden; }
   .app .perfil { justify-content: center; }
 
-  .cabecalho { padding: 16px 20px; }
+  .cabecalho { padding: 16px calc(20px + var(--reserva-controles)) 16px 20px; }
   .painel { padding: 22px 20px 70px; }
   .busca__campo { padding: 4px 14px; gap: 10px; }
   .busca__campo input { font-size: 19px; padding: 14px 0; }

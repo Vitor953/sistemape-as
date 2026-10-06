@@ -21,6 +21,24 @@ const PASTA_PUBLICA = path.join(__dirname, 'public');
 let janela = null;
 let endereco = null;
 
+// A janela não usa a barra de título nem o menu do Windows: a tela ocupa
+// tudo e os botões de minimizar, maximizar e fechar ficam por cima, no
+// canto direito, pintados com as cores do sistema.
+const ALTURA_BARRA = 40;
+const CORES_DA_BARRA = {
+  nenhuma: { color: '#080b11', symbolColor: '#aab4c3' },
+  baixando: { color: '#161e2c', symbolColor: '#e7ecf3' },
+  pronta: { color: '#f2a816', symbolColor: '#12100a' }
+};
+
+// Os botões acompanham a faixa de atualização (que só existe na tela principal).
+function pintarBarra() {
+  if (!janela || process.platform !== 'win32') return;
+  const naTelaPrincipal = !janela.webContents.getURL().includes('/login.html');
+  const fase = naTelaPrincipal ? estadoAtualizacao.fase : 'nenhuma';
+  janela.setTitleBarOverlay({ ...CORES_DA_BARRA[fase], height: ALTURA_BARRA });
+}
+
 async function criarJanela() {
   const { porta } = await iniciar({ pastaPublica: PASTA_PUBLICA, porta: 0 });
   endereco = `http://127.0.0.1:${porta}`;
@@ -34,12 +52,18 @@ async function criarJanela() {
     backgroundColor: '#080b11',
     title: 'Consulta de Autopeças',
     icon: path.join(__dirname, 'build', 'icone.ico'),
+    titleBarStyle: 'hidden',
+    titleBarOverlay: { ...CORES_DA_BARRA.nenhuma, height: ALTURA_BARRA },
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false
     }
   });
+
+  // O menu continua existindo (os atalhos de teclado dele funcionam), só não aparece.
+  janela.setMenuBarVisibility(false);
+  janela.webContents.on('did-navigate', pintarBarra);
 
   janela.once('ready-to-show', () => {
     janela.maximize();
@@ -70,6 +94,7 @@ let estadoAtualizacao = { fase: 'nenhuma', versao: null, percentual: 0 };
 function informarTela(novoEstado) {
   estadoAtualizacao = { ...estadoAtualizacao, ...novoEstado };
   if (janela) janela.webContents.send('atualizacao:estado', estadoAtualizacao);
+  pintarBarra();
 }
 
 // Com o programa aberto o dia todo, procura versão nova de tempos em tempos.
