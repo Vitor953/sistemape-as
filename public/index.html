@@ -6,13 +6,97 @@
 <title>Consulta de Autopeças</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilo.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='5' fill='%2317202A'/><path d='M8 20h16M8 20a3 3 0 106 0 3 3 0 10-6 0M18 20a3 3 0 106 0 3 3 0 10-6 0M7 20l2-7h14l2 7' stroke='%23E8A013' stroke-width='2' fill='none' stroke-linejoin='round'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23F2A816'/><text x='16' y='21' font-family='Arial' font-weight='900' font-size='13' text-anchor='middle' fill='%230A0E15'>AP</text></svg>">
+<script type="importmap">{ "imports": { "three": "./vendor/three/three.module.js" } }</script>
+<script type="module" src="cena3d.js"></script>
 </head>
-<body>
+<body class="app">
 
-<header class="topo">
+<!-- Ícones usados no menu (desenhados uma vez, reaproveitados com <use>). -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-painel" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-catalogo" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></symbol>
+    <symbol id="i-repor" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></symbol>
+    <symbol id="i-movimentos" viewBox="0 0 24 24"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></symbol>
+    <symbol id="i-importar" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M4 15v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></symbol>
+    <symbol id="i-exportar" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 15v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></symbol>
+    <symbol id="i-usuarios" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14.5a6.5 6.5 0 013.5 5.5"/></symbol>
+    <symbol id="i-atualizar" viewBox="0 0 24 24"><path d="M20 12a8 8 0 01-14.3 4.9M4 12a8 8 0 0114.3-4.9M18 3v4.5h-4.5M6 21v-4.5h4.5"/></symbol>
+    <symbol id="i-sair" viewBox="0 0 24 24"><path d="M14 4h4a2 2 0 012 2v12a2 2 0 01-2 2h-4M9 16l-4-4 4-4M5 12h11"/></symbol>
+    <symbol id="i-recolher" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+    <symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  </defs>
+</svg>
+
+<!-- ======================== MENU LATERAL ======================== -->
+<aside class="lateral" id="lateral">
+  <div class="lateral__marca">
+    <span class="logo3d" aria-hidden="true"><span class="logo3d__face">AP</span></span>
+    <div class="lateral__nome"><b>Autopeças</b> <span>Administração</span></div>
+    <button class="lateral__recolher" id="btRecolher" type="button" aria-label="Recolher o menu" title="Recolher o menu">
+      <svg class="icone"><use href="#i-recolher"/></svg>
+    </button>
+  </div>
+
+  <nav class="lateral__menu" aria-label="Menu principal">
+    <p class="lateral__secao">Principal</p>
+    <button class="aba item" data-aba="graficos" type="button" title="Painel geral">
+      <svg class="icone"><use href="#i-painel"/></svg><span class="item__texto">Painel geral</span>
+    </button>
+    <button class="aba item aba--ativa" data-aba="catalogo" type="button" title="Catálogo de peças">
+      <svg class="icone"><use href="#i-catalogo"/></svg><span class="item__texto">Catálogo de peças</span>
+    </button>
+
+    <p class="lateral__secao">Estoque</p>
+    <button class="aba item" data-aba="estoque" type="button" title="Reposição">
+      <svg class="icone"><use href="#i-repor"/></svg><span class="item__texto">Reposição</span>
+      <em class="selo" id="seloRepor" hidden></em>
+    </button>
+    <button class="aba item" data-aba="movimentos" type="button" title="Movimentações">
+      <svg class="icone"><use href="#i-movimentos"/></svg><span class="item__texto">Movimentações</span>
+    </button>
+    <button class="item" id="btImportar" type="button" title="Importar planilha">
+      <svg class="icone"><use href="#i-importar"/></svg><span class="item__texto">Importar planilha</span>
+    </button>
+    <button class="item" id="btExportar" type="button" title="Exportar planilha">
+      <svg class="icone"><use href="#i-exportar"/></svg><span class="item__texto">Exportar planilha</span>
+    </button>
+
+    <div id="secaoGestao" hidden>
+      <p class="lateral__secao">Gestão</p>
+      <button class="aba item" data-aba="usuarios" id="btUsuarios" type="button" title="Usuários">
+        <svg class="icone"><use href="#i-usuarios"/></svg><span class="item__texto">Usuários</span>
+        <em class="selo">Admin</em>
+      </button>
+    </div>
+
+    <div id="secaoSistema" hidden>
+      <p class="lateral__secao">Sistema</p>
+      <button class="item" id="btVerificar" type="button" title="Procurar uma versão nova no GitHub">
+        <svg class="icone"><use href="#i-atualizar"/></svg><span class="item__texto">Verificar atualização</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="lateral__rodape" id="topoUsuario" hidden>
+    <div class="perfil">
+      <span class="perfil__avatar" id="perfilAvatar" aria-hidden="true"></span>
+      <div class="perfil__textos">
+        <b id="usuarioNome"></b>
+        <small id="usuarioEmail"></small>
+      </div>
+    </div>
+    <button class="sair" id="btSair" type="button" title="Sair do perfil">
+      <svg class="icone"><use href="#i-sair"/></svg><span class="item__texto">Sair do perfil</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ======================== ÁREA PRINCIPAL ======================== -->
+<div class="area">
   <!-- Só aparece no programa instalado, quando há versão nova. -->
   <div class="faixa-atualizacao" id="faixaAtualizacao" data-fase="nenhuma" role="status" aria-live="polite" hidden>
     <span class="faixa-atualizacao__texto" id="faixaAtualizacaoTexto"></span>
@@ -20,32 +104,15 @@
     <button class="faixa-atualizacao__botao" id="btInstalarAtualizacao" type="button">Atualizar agora</button>
   </div>
 
-  <div class="topo__marca">
-    <span class="topo__selo">AP</span>
+  <header class="cabecalho">
     <div>
-      <h1>Consulta de peças</h1>
-      <p id="rodapeContagem">carregando catálogo…</p>
-      <p class="topo__usuario" id="topoUsuario" hidden>
-        <span id="usuarioNome"></span>
-        <span id="topoAdmin" hidden>· <button class="topo__sair" id="btUsuarios" type="button">Usuários</button></span>
-        · <button class="topo__sair" id="btSair" type="button">Sair</button>
-      </p>
+      <h1 class="cabecalho__titulo" id="tituloPagina">Catálogo de peças</h1>
+      <p class="cabecalho__sub" id="rodapeContagem">carregando catálogo…</p>
     </div>
-  </div>
-
-  <nav class="abas" role="tablist">
-    <button class="aba aba--ativa" data-aba="catalogo" role="tab">Catálogo</button>
-    <button class="aba" data-aba="graficos" role="tab">Painel</button>
-    <button class="aba" data-aba="estoque" role="tab">Estoque</button>
-    <button class="aba" data-aba="movimentos" role="tab">Movimentações</button>
-  </nav>
-
-  <div class="topo__acoes">
-    <button class="botao botao--fantasma" id="btImportar">Importar CSV</button>
-    <button class="botao botao--fantasma" id="btExportar">Exportar CSV</button>
-    <button class="botao botao--principal" id="btNova">Cadastrar peça</button>
-  </div>
-</header>
+    <button class="botao botao--principal botao--grande" id="btNova" type="button">
+      <svg class="icone"><use href="#i-mais"/></svg> Cadastrar peça
+    </button>
+  </header>
 
 <!-- ======================= CATÁLOGO ======================= -->
 <main class="painel painel--ativo" id="painel-catalogo">
@@ -87,6 +154,17 @@
 
 <!-- ======================== PAINEL ======================== -->
 <main class="painel" id="painel-graficos">
+  <section class="hero" aria-label="Valor do estoque">
+    <div class="hero__cena" id="heroCena" aria-hidden="true"></div>
+    <div class="hero__texto">
+      <p class="hero__saudacao" id="heroSaudacao">Bem-vindo</p>
+      <p class="hero__rotulo">Valor do estoque a preço de venda</p>
+      <p class="hero__valor" id="heroValor">—</p>
+      <p class="hero__detalhe" id="heroDetalhe"></p>
+      <div class="hero__chips" id="heroChips"></div>
+    </div>
+  </section>
+
   <div class="dash-filtros" role="group" aria-label="Período das movimentações">
     <span class="dash-filtros__rotulo">Movimento dos últimos</span>
     <button class="dash-periodo" type="button" data-dias="7">7 dias</button>
@@ -99,10 +177,7 @@
 <!-- ======================= USUÁRIOS ======================= -->
 <main class="painel" id="painel-usuarios">
   <div class="usuarios__topo">
-    <div>
-      <h2 class="secao-titulo">Usuários do sistema</h2>
-      <p class="usuarios__dica">Quem pode entrar no sistema. Administradores também cadastram e removem usuários.</p>
-    </div>
+    <p class="usuarios__dica">Quem pode entrar no sistema. Administradores também cadastram e removem usuários.</p>
     <button class="botao botao--principal" id="btNovoUsuario" type="button">Novo usuário</button>
   </div>
   <div id="listaUsuarios" class="usuarios"></div>
@@ -120,6 +195,7 @@
   <h2 class="secao-titulo">Últimas entradas e saídas</h2>
   <div id="listaMovimentos" class="movimentos"></div>
 </main>
+</div>
 
 <!-- ================== DETALHE DA PEÇA ==================== -->
 <aside class="gaveta" id="gaveta" aria-hidden="true">

@@ -173,9 +173,12 @@ Coolify.
 | `config.js` | Endereço do Supabase e chave pública |
 | `preload.js` | Ponte entre a tela e o programa |
 | `public/login.html` · `login.js` | Página de entrada |
-| `public/index.html` | Estrutura da tela e campos dos formulários |
-| `public/estilo.css` | Cores, fontes e layout (tudo no bloco `:root` do topo) |
-| `public/app.js` | Comportamento da tela: busca, filtros, modais |
+| `public/index.html` | Menu lateral, estrutura das páginas e campos dos formulários |
+| `public/estilo.css` | Tema escuro: cores, fontes e layout (tudo no bloco `:root` do topo) |
+| `public/app.js` | Comportamento da tela: menu, busca, filtros, modais |
+| `public/painel.js` · `usuarios.js` | Painel com gráficos · cadastro de usuários |
+| `public/cena3d.js` | Disco de freio e engrenagens em 3D (login e Painel) |
+| `public/vendor/three/` | Biblioteca de 3D (three.js). Atualize com `npm run copiar-3d` |
 | `supabase/esquema.sql` | Tabelas, regras de acesso e a função de entrada e saída |
 | `scripts/criar-usuario.js` | Cria e libera usuários (`npm run criar-usuario`) |
 | `dados-iniciais/pecas.json` | 40 peças de demonstração (não vão no instalador) |

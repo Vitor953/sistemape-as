@@ -410,30 +410,55 @@ function sparkline(valores, cor) {
 }
 
 function blocoNumero({ rotulo, valor, detalhe, faisca, alerta }) {
-  const bloco = el('div', `dash-numero${alerta ? ' dash-numero--alerta' : ''}`);
+  const bloco = el('div', `dash-numero inclinavel${alerta ? ' dash-numero--alerta' : ''}`);
   bloco.append(el('span', 'dash-numero__rotulo', rotulo), el('span', 'dash-numero__valor', valor));
   if (detalhe) bloco.append(el('span', 'dash-numero__detalhe', detalhe));
   if (faisca) bloco.append(faisca);
   return bloco;
 }
 
+/* ------------------------- Banner 3D do topo ----------------------- */
+
+function preencherSaudacao() {
+  const hora = new Date().getHours();
+  const periodo = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+  const nome = estado.usuario ? (estado.usuario.nome || '').split(' ')[0] : '';
+  $('#heroSaudacao').textContent = nome ? `${periodo}, ${nome}` : periodo;
+}
+
+function preencherHero(d) {
+  preencherSaudacao();
+  $('#heroValor').textContent = fmtDinheiro.format(d.estoque.valorVenda);
+  $('#heroDetalhe').textContent =
+    `custo ${fmtDinheiro.format(d.estoque.valorCusto)} · margem potencial ` +
+    fmtDinheiro.format(d.estoque.valorVenda - d.estoque.valorCusto);
+  const chips = $('#heroChips');
+  chips.replaceChildren();
+  for (const [valor, rotulo] of [
+    [fmtNumero.format(d.estoque.itens), 'itens'],
+    [fmtNumero.format(d.estoque.unidades), 'unidades'],
+    [fmtNumero.format(d.estoque.situacoes.disponivel), 'em estoque']
+  ]) {
+    const chip = el('span', 'hero__chip');
+    chip.append(el('b', '', valor), document.createTextNode(` ${rotulo}`));
+    chips.append(chip);
+  }
+}
+
+// A cena 3D é montada uma vez só; trocar o período não recria o WebGL.
+let cenaMontada = false;
+function montarCenaDoHero() {
+  if (cenaMontada) return;
+  cenaMontada = true;
+  const pedido = [$('#heroCena'), { escala: 0.9, posicaoX: 0.48, posicaoY: 0 }];
+  if (window.montarCena3D) window.montarCena3D(...pedido);
+  else (window.__cenasPendentes = window.__cenasPendentes || []).push(pedido);
+}
+
 function montarNumeros(d) {
   const linha = el('section', 'dash-numeros');
-
-  const destaque = el('div', 'dash-numero dash-numero--destaque');
-  destaque.append(
-    el('span', 'dash-numero__rotulo', 'Valor do estoque a preço de venda'),
-    el('span', 'dash-numero__valor', fmtDinheiro.format(d.estoque.valorVenda)),
-    el(
-      'span',
-      'dash-numero__detalhe',
-      `custo ${fmtDinheiro.format(d.estoque.valorCusto)} · margem potencial ${fmtDinheiro.format(d.estoque.valorVenda - d.estoque.valorCusto)}`
-    )
-  );
-
   const paraRepor = d.estoque.situacoes.critico + d.estoque.situacoes.zerado;
   linha.append(
-    destaque,
     blocoNumero({ rotulo: 'Itens cadastrados', valor: fmtNumero.format(d.estoque.itens), detalhe: `${fmtNumero.format(d.estoque.unidades)} unidades` }),
     blocoNumero({
       rotulo: `Saídas em ${d.dias} dias`,
@@ -547,8 +572,10 @@ async function carregarPainel() {
   const conteudo = $('#dashConteudo');
   // Ao trocar o período, o painel anterior fica esmaecido em vez de piscar.
   conteudo.classList.add('dash--carregando');
+  montarCenaDoHero();
   try {
     painel.dados = await api(`/api/painel?dias=${painel.dias}`);
+    preencherHero(painel.dados);
     montarPainel(painel.dados);
   } catch (erro) {
     avisar(erro.message, 'erro');

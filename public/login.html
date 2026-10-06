@@ -6,15 +6,24 @@
 <title>Entrar · Consulta de Autopeças</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilo.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='5' fill='%2317202A'/><path d='M8 20h16M8 20a3 3 0 106 0 3 3 0 10-6 0M18 20a3 3 0 106 0 3 3 0 10-6 0M7 20l2-7h14l2 7' stroke='%23E8A013' stroke-width='2' fill='none' stroke-linejoin='round'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23F2A816'/><text x='16' y='21' font-family='Arial' font-weight='900' font-size='13' text-anchor='middle' fill='%230A0E15'>AP</text></svg>">
+<script type="importmap">{ "imports": { "three": "./vendor/three/three.module.js" } }</script>
+<script type="module" src="cena3d.js"></script>
 </head>
 <body class="tela-login">
 
+<div class="login-cena" id="loginCena" aria-hidden="true"></div>
+
+<div class="login-chamada" aria-hidden="true">
+  <p class="login-chamada__marca">Autopeças</p>
+  <p class="login-chamada__frase">Estoque, catálogo e movimentações<br>da loja em um só lugar.</p>
+</div>
+
 <main class="login">
   <header class="login__topo">
-    <span class="topo__selo">AP</span>
+    <span class="logo3d" aria-hidden="true"><span class="logo3d__face">AP</span></span>
     <div>
       <h1>Consulta de peças</h1>
       <p>Entre com seu usuário para acessar o sistema.</p>
@@ -33,12 +42,20 @@
 
     <p class="login__erro" id="loginErro" role="alert" hidden></p>
 
-    <button class="botao botao--principal login__botao" type="submit" id="btEntrar">Entrar</button>
+    <button class="botao botao--principal botao--grande login__botao" type="submit" id="btEntrar">Entrar</button>
   </form>
 
   <p class="login__rodape">Sem acesso? Peça ao responsável pelo sistema para liberar seu usuário.</p>
 </main>
 
 <script src="login.js"></script>
+<script>
+  // A cena 3D ocupa a parte esquerda da tela, um pouco abaixo do texto.
+  (function () {
+    var pedido = [document.getElementById('loginCena'), { escala: 0.8, posicaoX: 0.06, posicaoY: -0.2 }];
+    if (window.montarCena3D) window.montarCena3D(pedido[0], pedido[1]);
+    else (window.__cenasPendentes = window.__cenasPendentes || []).push(pedido);
+  })();
+</script>
 </body>
 </html>

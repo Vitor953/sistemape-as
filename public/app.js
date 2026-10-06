@@ -81,6 +81,9 @@ async function carregarResumo() {
     estado.resumo = await api('/api/resumo');
     preencherSelecoes();
     desenharIndicadores();
+    const paraRepor = estado.resumo.criticos + estado.resumo.zerados;
+    $('#seloRepor').textContent = paraRepor;
+    $('#seloRepor').hidden = !paraRepor;
   } catch (erro) {
     avisar(erro.message, 'erro');
   }
@@ -171,7 +174,7 @@ function desenharIndicadores() {
 
   $('#indicadores').innerHTML = cartoes
     .map(
-      c => `<div class="indicador ${c.classe}">
+      c => `<div class="indicador inclinavel ${c.classe}">
               <div class="indicador__valor">${c.valor}</div>
               <div class="indicador__rotulo">${c.rotulo}</div>
             </div>`
@@ -531,10 +534,20 @@ document.addEventListener('click', evento => {
 
 $('#btNova').addEventListener('click', () => abrirFormulario(null));
 
-// Mostra um dos painéis da tela. "usuarios" não tem aba: abre pelo link no topo.
+const TITULOS = {
+  graficos: 'Painel geral',
+  catalogo: 'Catálogo de peças',
+  estoque: 'Reposição',
+  movimentos: 'Movimentações',
+  usuarios: 'Usuários do sistema'
+};
+
+// Mostra um dos painéis da tela e marca o item correspondente no menu lateral.
 function mostrarPainel(nome) {
   $$('.aba').forEach(a => a.classList.toggle('aba--ativa', a.dataset.aba === nome));
   $$('.painel').forEach(p => p.classList.toggle('painel--ativo', p.id === `painel-${nome}`));
+  $('#tituloPagina').textContent = TITULOS[nome] || '';
+  $('.area').scrollTop = 0;
   if (nome === 'graficos') carregarPainel();
   if (nome === 'estoque') carregarReposicao();
   if (nome === 'movimentos') carregarMovimentos();
@@ -563,10 +576,13 @@ async function carregarUsuario() {
   try {
     const { usuario } = await api('/api/sessao');
     estado.usuario = usuario;
-    $('#usuarioNome').textContent = usuario.nome || usuario.email;
-    $('#usuarioNome').title = usuario.email;
-    $('#topoAdmin').hidden = usuario.papel !== 'admin';
+    const nome = usuario.nome || usuario.email;
+    $('#usuarioNome').textContent = nome;
+    $('#usuarioEmail').textContent = usuario.email;
+    $('#perfilAvatar').textContent = nome.trim().charAt(0).toUpperCase();
+    $('#secaoGestao').hidden = usuario.papel !== 'admin';
     $('#topoUsuario').hidden = false;
+    if (typeof preencherSaudacao === 'function') preencherSaudacao();
   } catch (erro) {
     // Sem sessão, a função api() já levou para a página de entrada.
   }
@@ -576,6 +592,60 @@ $('#btSair').addEventListener('click', async () => {
   await fetch('/api/logout', { method: 'POST' }).catch(() => {});
   window.location.replace('/login.html');
 });
+
+/* -------------------------- Menu lateral ------------------------- */
+
+function lerPreferencia(chave) {
+  try {
+    return localStorage.getItem(chave);
+  } catch (e) {
+    return null;
+  }
+}
+
+function guardarPreferencia(chave, valor) {
+  try {
+    localStorage.setItem(chave, valor);
+  } catch (e) {}
+}
+
+function recolherMenu(recolher) {
+  document.body.classList.toggle('menu-recolhido', recolher);
+  $('#btRecolher').setAttribute('aria-label', recolher ? 'Abrir o menu' : 'Recolher o menu');
+  $('#btRecolher').title = recolher ? 'Abrir o menu' : 'Recolher o menu';
+  guardarPreferencia('menuRecolhido', recolher ? 'sim' : 'nao');
+}
+
+$('#btRecolher').addEventListener('click', () => recolherMenu(!document.body.classList.contains('menu-recolhido')));
+if (lerPreferencia('menuRecolhido') === 'sim') recolherMenu(true);
+
+/* ---------------------- Cartões que inclinam ---------------------- */
+// Cartões marcados com .inclinavel giram de leve em 3D seguindo o mouse.
+
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.addEventListener('pointermove', evento => {
+    const cartao = evento.target.closest && evento.target.closest('.inclinavel');
+    if (!cartao) return;
+    const caixa = cartao.getBoundingClientRect();
+    const x = (evento.clientX - caixa.left) / caixa.width;
+    const y = (evento.clientY - caixa.top) / caixa.height;
+    cartao.style.setProperty('--giro-x', `${(0.5 - y) * 10}deg`);
+    cartao.style.setProperty('--giro-y', `${(x - 0.5) * 12}deg`);
+    cartao.style.setProperty('--luz-x', `${x * 100}%`);
+    cartao.style.setProperty('--luz-y', `${y * 100}%`);
+  });
+  document.addEventListener(
+    'pointerout',
+    evento => {
+      const cartao = evento.target.closest && evento.target.closest('.inclinavel');
+      if (cartao && !cartao.contains(evento.relatedTarget)) {
+        cartao.style.setProperty('--giro-x', '0deg');
+        cartao.style.setProperty('--giro-y', '0deg');
+      }
+    },
+    true
+  );
+}
 
 /* ---------------------------- Início ----------------------------- */
 
@@ -587,10 +657,8 @@ $('#campoBusca').focus();
 /* Só aparecem quando o sistema roda como aplicativo, não no navegador. */
 
 if (window.appDesktop) {
-  const botao = document.createElement('button');
-  botao.className = 'botao botao--fantasma';
-  botao.textContent = 'Verificar atualização';
-  botao.title = 'Procurar uma versão nova no GitHub';
+  $('#secaoSistema').hidden = false;
+  const botao = $('#btVerificar');
   botao.addEventListener('click', () => {
     botao.disabled = true;
     avisar('Procurando atualização…');
@@ -598,7 +666,6 @@ if (window.appDesktop) {
       setTimeout(() => (botao.disabled = false), 2500);
     });
   });
-  $('.topo__acoes').prepend(botao);
 
   window.appDesktop.versao().then(v => {
     const linha = $('#rodapeContagem');

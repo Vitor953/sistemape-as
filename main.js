@@ -31,7 +31,7 @@ async function criarJanela() {
     minWidth: 900,
     minHeight: 600,
     show: false,
-    backgroundColor: '#17202a',
+    backgroundColor: '#080b11',
     title: 'Consulta de Autopeças',
     icon: path.join(__dirname, 'build', 'icone.ico'),
     webPreferences: {
