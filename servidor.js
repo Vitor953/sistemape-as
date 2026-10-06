@@ -705,7 +705,7 @@ async function entrar(req, res) {
   }
 
   // Ter conta não basta: a pessoa precisa estar liberada na tabela "usuarios".
-  const perfil = await chamarSupabase(`/rest/v1/usuarios?select=nome,email&id=eq.${dado.user.id}`, {
+  const perfil = await chamarSupabase(`/rest/v1/usuarios?select=nome,email,papel&id=eq.${dado.user.id}`, {
     token: dado.access_token
   });
   if (!perfil.length) {
@@ -715,9 +715,15 @@ async function entrar(req, res) {
 
   const sessao = {
     id: crypto.randomBytes(32).toString('hex'),
-    usuario: { id: dado.user.id, email: dado.user.email, nome: perfil[0].nome || dado.user.email }
+    usuario: {
+      id: dado.user.id,
+      email: dado.user.email,
+      nome: perfil[0].nome || dado.user.email,
+      papel: perfil[0].papel
+    }
   };
   guardarTokens(sessao, dado);
+  sessao.conferidoEm = Date.now();
   sessoes.set(sessao.id, sessao);
 
   res.setHeader('Set-Cookie', `sessao=${sessao.id}; HttpOnly; SameSite=Strict; Path=/`);
@@ -750,6 +756,19 @@ async function tratarAPI(req, res, url) {
   // Daqui para baixo, só com login.
   const sessao = sessaoDaRequisicao(req);
   if (!sessao) return responderJSON(res, 401, { erro: 'Entre com seu usuário para continuar.' });
+
+  // A cada minuto, confere se a pessoa ainda tem acesso e qual o nível dela.
+  // Quem foi removido volta para a entrada; quem mudou de nível não precisa sair e entrar.
+  if (Date.now() - (sessao.conferidoEm || 0) > 60 * 1000) {
+    const perfil = await banco(sessao, `/rest/v1/usuarios?select=nome,papel&id=eq.${sessao.usuario.id}`);
+    if (!perfil.length) {
+      sessoes.delete(sessao.id);
+      return responderJSON(res, 401, { erro: 'Seu acesso ao sistema foi removido.' });
+    }
+    sessao.usuario.nome = perfil[0].nome || sessao.usuario.email;
+    sessao.usuario.papel = perfil[0].papel;
+    sessao.conferidoEm = Date.now();
+  }
 
   /* ---- Quem está usando ---- */
   if (recurso === 'sessao' && req.method === 'GET') {
@@ -911,6 +930,63 @@ async function tratarAPI(req, res, url) {
       listarMovimentosDesde(sessao, inicio.toISOString())
     ]);
     return responderJSON(res, 200, montarPainel(pecas, movimentos, dias));
+  }
+
+  /* ---- Usuários (só administradores) ---- */
+  // O banco confere de novo se quem pede é administrador; aqui é só para
+  // responder logo, sem ir até ele.
+  if (recurso === 'usuarios') {
+    if (sessao.usuario.papel !== 'admin') {
+      return responderJSON(res, 403, { erro: 'Só administradores podem gerenciar usuários.' });
+    }
+    if (id && !ID_VALIDO.test(id)) return responderJSON(res, 404, { erro: 'Usuário não encontrado.' });
+
+    if (!id && req.method === 'GET') {
+      const linhas = await banco(sessao, '/rest/v1/rpc/listar_usuarios', { metodo: 'POST', corpo: {} });
+      return responderJSON(
+        res,
+        200,
+        linhas.map(u => ({
+          id: u.id,
+          email: u.email,
+          nome: u.nome,
+          papel: u.papel,
+          criadoEm: u.criado_em,
+          ultimoAcesso: u.ultimo_acesso,
+          voce: u.id === sessao.usuario.id
+        }))
+      );
+    }
+
+    if (!id && req.method === 'POST') {
+      const corpo = await lerCorpo(req);
+      const novoId = await banco(sessao, '/rest/v1/rpc/criar_usuario', {
+        metodo: 'POST',
+        corpo: {
+          p_email: String(corpo.email || ''),
+          p_senha: String(corpo.senha || ''),
+          p_nome: String(corpo.nome || ''),
+          p_papel: corpo.papel === 'admin' ? 'admin' : 'balcao'
+        }
+      });
+      return responderJSON(res, 201, { id: novoId });
+    }
+
+    if (id && req.method === 'PUT') {
+      const corpo = await lerCorpo(req);
+      const papel = corpo.papel === 'admin' ? 'admin' : 'balcao';
+      await banco(sessao, '/rest/v1/rpc/alterar_usuario', {
+        metodo: 'POST',
+        corpo: { p_id: id, p_nome: String(corpo.nome || ''), p_papel: papel, p_senha: String(corpo.senha || '') }
+      });
+      if (id === sessao.usuario.id && String(corpo.nome || '').trim()) sessao.usuario.nome = String(corpo.nome).trim();
+      return responderJSON(res, 200, { alterado: true });
+    }
+
+    if (id && req.method === 'DELETE') {
+      await banco(sessao, '/rest/v1/rpc/remover_usuario', { metodo: 'POST', corpo: { p_id: id } });
+      return responderJSON(res, 200, { removido: true });
+    }
   }
 
   /* ---- Exportar CSV ---- */

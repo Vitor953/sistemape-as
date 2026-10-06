@@ -531,17 +531,17 @@ document.addEventListener('click', evento => {
 
 $('#btNova').addEventListener('click', () => abrirFormulario(null));
 
-$$('.aba').forEach(aba =>
-  aba.addEventListener('click', () => {
-    $$('.aba').forEach(a => a.classList.remove('aba--ativa'));
-    $$('.painel').forEach(p => p.classList.remove('painel--ativo'));
-    aba.classList.add('aba--ativa');
-    $(`#painel-${aba.dataset.aba}`).classList.add('painel--ativo');
-    if (aba.dataset.aba === 'graficos') carregarPainel();
-    if (aba.dataset.aba === 'estoque') carregarReposicao();
-    if (aba.dataset.aba === 'movimentos') carregarMovimentos();
-  })
-);
+// Mostra um dos painéis da tela. "usuarios" não tem aba: abre pelo link no topo.
+function mostrarPainel(nome) {
+  $$('.aba').forEach(a => a.classList.toggle('aba--ativa', a.dataset.aba === nome));
+  $$('.painel').forEach(p => p.classList.toggle('painel--ativo', p.id === `painel-${nome}`));
+  if (nome === 'graficos') carregarPainel();
+  if (nome === 'estoque') carregarReposicao();
+  if (nome === 'movimentos') carregarMovimentos();
+  if (nome === 'usuarios') carregarUsuarios();
+}
+
+$$('.aba').forEach(aba => aba.addEventListener('click', () => mostrarPainel(aba.dataset.aba)));
 
 document.addEventListener('keydown', evento => {
   if (evento.key === 'Escape') {
@@ -562,8 +562,10 @@ document.addEventListener('keydown', evento => {
 async function carregarUsuario() {
   try {
     const { usuario } = await api('/api/sessao');
+    estado.usuario = usuario;
     $('#usuarioNome').textContent = usuario.nome || usuario.email;
     $('#usuarioNome').title = usuario.email;
+    $('#topoAdmin').hidden = usuario.papel !== 'admin';
     $('#topoUsuario').hidden = false;
   } catch (erro) {
     // Sem sessão, a função api() já levou para a página de entrada.

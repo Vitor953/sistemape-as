@@ -157,5 +157,179 @@ $$;
 revoke all on function public.registrar_movimento(uuid, text, integer, text) from public, anon;
 grant execute on function public.registrar_movimento(uuid, text, integer, text) to authenticated;
 
+/* --------------------- Níveis de acesso e usuários ---------------- */
+-- "admin" cadastra e remove usuários; "balcao" usa o sistema no dia a dia.
+-- O cadastro acontece aqui dentro do banco, por funções que só um
+-- administrador consegue chamar. Assim a chave service_role nunca
+-- precisa ir para dentro do programa.
+
+alter table public.usuarios add column if not exists papel text not null default 'balcao';
+alter table public.usuarios drop constraint if exists usuarios_papel_valido;
+alter table public.usuarios add constraint usuarios_papel_valido check (papel in ('admin', 'balcao'));
+
+create or replace function public.e_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (select 1 from public.usuarios where id = auth.uid() and papel = 'admin');
+$$;
+
+revoke all on function public.e_admin() from public, anon;
+grant execute on function public.e_admin() to authenticated;
+
+create or replace function public.listar_usuarios()
+returns table (id uuid, email text, nome text, papel text, criado_em timestamptz, ultimo_acesso timestamptz)
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+begin
+  if not public.e_admin() then
+    raise exception 'Só administradores podem ver os usuários.';
+  end if;
+  return query
+    select u.id, u.email, u.nome, u.papel, u.criado_em, a.last_sign_in_at
+      from public.usuarios u
+      join auth.users a on a.id = u.id
+     order by u.nome;
+end;
+$$;
+
+create or replace function public.criar_usuario(p_email text, p_senha text, p_nome text, p_papel text default 'balcao')
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_email text := lower(trim(coalesce(p_email, '')));
+  v_nome text := trim(coalesce(p_nome, ''));
+  v_id uuid;
+begin
+  if not public.e_admin() then
+    raise exception 'Só administradores podem criar usuários.';
+  end if;
+  if v_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
+    raise exception 'Informe um e-mail válido.';
+  end if;
+  if length(coalesce(p_senha, '')) < 8 then
+    raise exception 'A senha precisa ter pelo menos 8 caracteres.';
+  end if;
+  if p_papel not in ('admin', 'balcao') then
+    raise exception 'Nível de acesso inválido.';
+  end if;
+
+  select a.id into v_id from auth.users a where a.email = v_email;
+
+  if v_id is null then
+    -- Mesmo formato que o próprio Supabase grava ao criar um login confirmado.
+    v_id := gen_random_uuid();
+    insert into auth.users (
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+      raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+      confirmation_token, recovery_token, email_change_token_new, email_change,
+      email_change_token_current, phone_change, phone_change_token, reauthentication_token
+    ) values (
+      '00000000-0000-0000-0000-000000000000', v_id, 'authenticated', 'authenticated', v_email,
+      extensions.crypt(p_senha, extensions.gen_salt('bf')), now(),
+      '{"provider": "email", "providers": ["email"]}', jsonb_build_object('nome', v_nome), now(), now(),
+      '', '', '', '', '', '', '', ''
+    );
+    insert into auth.identities (id, provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+    values (
+      gen_random_uuid(), v_id::text, v_id,
+      jsonb_build_object('sub', v_id::text, 'email', v_email, 'email_verified', true),
+      'email', now(), now(), now()
+    );
+  else
+    -- O login já existia (alguém que perdeu o acesso): volta com a senha nova.
+    if exists (select 1 from public.usuarios u where u.id = v_id) then
+      raise exception 'Já existe um usuário com o e-mail %.', v_email;
+    end if;
+    update auth.users
+       set encrypted_password = extensions.crypt(p_senha, extensions.gen_salt('bf')),
+           email_confirmed_at = coalesce(email_confirmed_at, now()),
+           updated_at = now()
+     where auth.users.id = v_id;
+  end if;
+
+  insert into public.usuarios (id, email, nome, papel)
+  values (v_id, v_email, coalesce(nullif(v_nome, ''), v_email), p_papel);
+  return v_id;
+end;
+$$;
+
+create or replace function public.alterar_usuario(p_id uuid, p_nome text, p_papel text, p_senha text default null)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.e_admin() then
+    raise exception 'Só administradores podem alterar usuários.';
+  end if;
+  if p_papel not in ('admin', 'balcao') then
+    raise exception 'Nível de acesso inválido.';
+  end if;
+  if p_id = auth.uid() and p_papel <> 'admin' then
+    raise exception 'Você não pode tirar o seu próprio acesso de administrador.';
+  end if;
+  if coalesce(p_senha, '') <> '' and length(p_senha) < 8 then
+    raise exception 'A senha precisa ter pelo menos 8 caracteres.';
+  end if;
+
+  update public.usuarios
+     set nome = coalesce(nullif(trim(coalesce(p_nome, '')), ''), email),
+         papel = p_papel
+   where id = p_id;
+  if not found then
+    raise exception 'Usuário não encontrado.';
+  end if;
+
+  if coalesce(p_senha, '') <> '' then
+    update auth.users
+       set encrypted_password = extensions.crypt(p_senha, extensions.gen_salt('bf')),
+           updated_at = now()
+     where id = p_id;
+  end if;
+end;
+$$;
+
+-- Apaga o login de vez. O histórico de movimentações guarda o e-mail
+-- de quem fez, então nada se perde nele.
+create or replace function public.remover_usuario(p_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.e_admin() then
+    raise exception 'Só administradores podem remover usuários.';
+  end if;
+  if p_id = auth.uid() then
+    raise exception 'Você não pode remover o seu próprio usuário.';
+  end if;
+  if not exists (select 1 from public.usuarios where id = p_id) then
+    raise exception 'Usuário não encontrado.';
+  end if;
+  delete from auth.users where id = p_id;
+end;
+$$;
+
+revoke all on function public.listar_usuarios() from public, anon;
+revoke all on function public.criar_usuario(text, text, text, text) from public, anon;
+revoke all on function public.alterar_usuario(uuid, text, text, text) from public, anon;
+revoke all on function public.remover_usuario(uuid) from public, anon;
+grant execute on function public.listar_usuarios() to authenticated;
+grant execute on function public.criar_usuario(text, text, text, text) to authenticated;
+grant execute on function public.alterar_usuario(uuid, text, text, text) to authenticated;
+grant execute on function public.remover_usuario(uuid) to authenticated;
+
 -- Avisa a API do Supabase que a estrutura mudou.
 notify pgrst, 'reload schema';

@@ -138,18 +138,26 @@ No painel do Supabase, abra **SQL Editor**, cole o conteúdo de
 `supabase/esquema.sql` e clique em **Run**. Pode rodar de novo sem medo: o
 script só cria o que falta.
 
-### Liberar uma pessoa para entrar
+### Usuários e níveis de acesso
 
-No terminal do VS Code, com a chave `service_role` (no Coolify ela se chama
-`SERVICE_SUPABASESERVICE_KEY`):
+Há dois níveis: **Administrador** e **Balcão**. Os dois usam o sistema inteiro;
+só o administrador vê o link **Usuários** no topo, ao lado do nome, onde cria,
+edita (nome, nível, senha) e remove usuários. Quem é removido perde o acesso
+em até um minuto, mesmo com o programa aberto. Ninguém consegue tirar o próprio
+acesso de administrador nem remover a si mesmo, então sempre sobra pelo menos um.
+
+O banco confere o nível em cada operação: esconder o link é só conveniência.
+
+**Se ficar sem nenhum administrador**, rode no terminal do VS Code, com a chave
+`service_role` (no Coolify ela se chama `SERVICE_SUPABASESERVICE_KEY`):
 
 ```
 $env:SUPABASE_SERVICE_KEY = "cole a chave aqui"
-npm run criar-usuario -- vendedor@loja.com.br SenhaForte123 "Nome da pessoa"
+npm run criar-usuario -- voce@loja.com.br SenhaForte123 "Seu nome"
 ```
 
-Rodar de novo com o mesmo e-mail troca a senha. Para tirar o acesso de alguém,
-apague a linha da pessoa na tabela `usuarios` pelo **Table Editor** do Supabase.
+O script cria a pessoa como Balcão. Depois, no **Table Editor** do Supabase, mude
+a coluna `papel` dela na tabela `usuarios` para `admin`.
 
 ### Backup
 

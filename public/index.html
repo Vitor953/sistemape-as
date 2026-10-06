@@ -26,8 +26,9 @@
       <h1>Consulta de peças</h1>
       <p id="rodapeContagem">carregando catálogo…</p>
       <p class="topo__usuario" id="topoUsuario" hidden>
-        <span id="usuarioNome"></span> ·
-        <button class="topo__sair" id="btSair" type="button">Sair</button>
+        <span id="usuarioNome"></span>
+        <span id="topoAdmin" hidden>· <button class="topo__sair" id="btUsuarios" type="button">Usuários</button></span>
+        · <button class="topo__sair" id="btSair" type="button">Sair</button>
       </p>
     </div>
   </div>
@@ -93,6 +94,18 @@
     <button class="dash-periodo" type="button" data-dias="90">90 dias</button>
   </div>
   <div id="dashConteudo" class="dash"></div>
+</main>
+
+<!-- ======================= USUÁRIOS ======================= -->
+<main class="painel" id="painel-usuarios">
+  <div class="usuarios__topo">
+    <div>
+      <h2 class="secao-titulo">Usuários do sistema</h2>
+      <p class="usuarios__dica">Quem pode entrar no sistema. Administradores também cadastram e removem usuários.</p>
+    </div>
+    <button class="botao botao--principal" id="btNovoUsuario" type="button">Novo usuário</button>
+  </div>
+  <div id="listaUsuarios" class="usuarios"></div>
 </main>
 
 <!-- ======================= ESTOQUE ======================= -->
@@ -237,10 +250,54 @@
   </div>
 </div>
 
+<!-- ================== CADASTRO DE USUÁRIO ================== -->
+<div class="modal" id="modalUsuario" aria-hidden="true">
+  <div class="modal__caixa modal__caixa--estreita" role="dialog" aria-modal="true" aria-labelledby="tituloUsuario">
+    <header class="modal__topo">
+      <h2 id="tituloUsuario">Novo usuário</h2>
+      <button class="modal__fechar" data-fechar-modal aria-label="Fechar">&times;</button>
+    </header>
+    <form id="formUsuario" class="formulario" autocomplete="off">
+      <input type="hidden" id="usuarioId">
+
+      <div class="campo campo--inteiro">
+        <label for="uNome">Nome</label>
+        <input id="uNome" placeholder="Maria Souza" required>
+      </div>
+      <div class="campo campo--inteiro">
+        <label for="uEmail">E-mail</label>
+        <input id="uEmail" type="email" placeholder="maria@loja.com.br" spellcheck="false" required>
+      </div>
+
+      <div class="campo campo--inteiro">
+        <span class="rotulo">Nível de acesso</span>
+        <div class="alternador">
+          <label><input type="radio" name="papelUsuario" value="balcao" checked><span>Balcão</span></label>
+          <label><input type="radio" name="papelUsuario" value="admin"><span>Administrador</span></label>
+        </div>
+      </div>
+
+      <div class="campo campo--inteiro">
+        <label for="uSenha" id="rotuloSenha">Senha</label>
+        <input id="uSenha" type="password" autocomplete="new-password" minlength="8">
+        <small id="dicaSenha">Pelo menos 8 caracteres. Passe a senha para a pessoa pessoalmente.</small>
+      </div>
+
+      <footer class="formulario__rodape">
+        <button type="button" class="botao botao--perigo botao--texto" id="btRemoverUsuario" hidden>Remover usuário</button>
+        <span class="espaco"></span>
+        <button type="button" class="botao botao--fantasma" data-fechar-modal>Cancelar</button>
+        <button type="submit" class="botao botao--principal">Salvar</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
 <input type="file" id="arquivoCSV" accept=".csv,text/csv" hidden>
 <div class="aviso" id="aviso" role="status" aria-live="polite"></div>
 
 <script src="app.js"></script>
 <script src="painel.js"></script>
+<script src="usuarios.js"></script>
 </body>
 </html>

@@ -593,6 +593,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .campo small { font-size: 12px; color: var(--aco-claro); }
 
+.campo input:disabled { background: var(--papel); color: var(--aco); cursor: not-allowed; }
+
 #fCodigo { font-family: var(--mono); font-weight: 500; }
 
 .alternador { display: flex; gap: 6px; }
@@ -882,6 +884,51 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .dash-grade { grid-template-columns: minmax(0, 1fr); }
   .dash-numero--destaque .dash-numero__valor { font-size: 38px; }
   .dash-filtros { flex-wrap: wrap; }
+}
+
+/* ---------------------------- Usuários --------------------------- */
+
+.usuarios__topo { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.usuarios__topo .secao-titulo { margin-bottom: 2px; }
+.usuarios__dica { margin: 0; font-size: 13px; color: var(--aco); }
+
+.usuarios {
+  background: var(--papel-alto);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-grande);
+  overflow: hidden;
+}
+
+.usuario {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.6fr) 130px 140px 70px;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--grade);
+  font-size: 14px;
+}
+.usuario:first-child { border-top: 0; }
+.usuario--cabecalho { padding-top: 10px; padding-bottom: 10px; font-size: 12px; color: var(--aco); background: var(--papel); }
+
+.usuario__nome { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.usuario__voce { font-style: normal; font-size: 11.5px; font-weight: 500; color: var(--aco); margin-left: 6px; }
+.usuario__email { color: var(--tinta-suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.usuario__acesso { font-size: 13px; color: var(--aco); }
+.usuario__acoes { text-align: right; }
+
+.usuario__papel { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 12px; font-weight: 500; }
+.usuario__papel--admin { background: var(--tinta); color: var(--papel); }
+.usuario__papel--balcao { background: var(--papel-fundo); color: var(--tinta-suave); }
+
+.alternador input:disabled + span { opacity: 0.55; cursor: not-allowed; }
+
+@media (max-width: 760px) {
+  .usuarios__topo { flex-direction: column; align-items: stretch; }
+  .usuario { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 12px 16px; }
+  .usuario--cabecalho { display: none; }
+  .usuario__email, .usuario__acesso { grid-column: 1; }
+  .usuario__acoes { grid-column: 2; grid-row: 1 / span 2; }
 }
 
 /* ------------------------- Usuário no topo ----------------------- */
